@@ -1,3 +1,7 @@
+## v0.8.92.12
+
+- fix(macos): avoid high CPU when tray traffic is disabled (fix #1644)
+
 ## v0.8.92.11
 
 - feat(release): show full version and refine about page
