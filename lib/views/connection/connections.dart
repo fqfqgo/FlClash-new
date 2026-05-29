@@ -53,7 +53,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
         await _updateConnections();
-        timer = Timer(Duration(seconds: 1), () async {
+        timer = Timer(const Duration(seconds: 1), () async {
           _updateConnectionsTask();
         });
       }
@@ -73,7 +73,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView> {
   }
 
   Future<void> _handleBlockConnection(String id) async {
-    coreController.closeConnection(id);
+    await coreController.closeConnection(id);
     await _updateConnections();
   }
 
@@ -88,6 +88,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return CommonScaffold(
       title: appLocalizations.connections,
       onKeywordsUpdate: _onKeywordsUpdate,
@@ -100,7 +101,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView> {
           if (connections.isEmpty) {
             return NullStatus(
               label: appLocalizations.nullTip(appLocalizations.connections),
-              illustration: ConnectionEmptyIllustration(),
+              illustration: const ConnectionEmptyIllustration(),
             );
           }
           final items = connections

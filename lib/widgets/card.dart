@@ -94,10 +94,13 @@ class CommonCard extends StatelessWidget {
     this.enterAnimated = false,
     this.info,
     this.onLongPress,
+    this.shape,
+    this.isError = false,
   }) : isSelected = isSelected ?? false;
 
   final bool enterAnimated;
   final bool isSelected;
+  final bool isError;
   final void Function()? onPressed;
   final void Function()? onLongPress;
   final Widget? selectWidget;
@@ -106,12 +109,28 @@ class CommonCard extends StatelessWidget {
   final Info? info;
   final CommonCardType type;
   final double? radius;
+  final OutlinedBorder? shape;
 
-  // final WidgetStateProperty<Color?>? backgroundColor;
-  // final WidgetStateProperty<BorderSide?>? borderSide;
-
-  BorderSide getBorderSide(BuildContext context, Set<WidgetState> states) {
+  BorderSide _buildBorderSide(BuildContext context, Set<WidgetState> states) {
     final colorScheme = context.colorScheme;
+    if (isError) {
+      if (type == CommonCardType.filled) {
+        return BorderSide(color: colorScheme.error);
+      }
+      final hoverColor = isSelected
+          ? colorScheme.error.opacity80
+          : colorScheme.error.opacity38;
+      if (states.contains(WidgetState.hovered) ||
+          states.contains(WidgetState.focused) ||
+          states.contains(WidgetState.pressed)) {
+        return BorderSide(color: hoverColor);
+      }
+      return BorderSide(
+        color: isSelected
+            ? colorScheme.error.opacity60
+            : colorScheme.error.opacity30,
+      );
+    }
     if (type == CommonCardType.filled) {
       return BorderSide.none;
     }
@@ -130,8 +149,18 @@ class CommonCard extends StatelessWidget {
     );
   }
 
-  Color? getBackgroundColor(BuildContext context, Set<WidgetState> states) {
+  Color? _buildBackgroundColor(BuildContext context) {
     final colorScheme = context.colorScheme;
+    // if (isError) {
+    //   if (type == CommonCardType.filled) {
+    //     return isSelected
+    //         ? colorScheme.errorContainer.opacity80
+    //         : colorScheme.errorContainer;
+    //   }
+    //   return isSelected
+    //       ? colorScheme.errorContainer.opacity60
+    //       : colorScheme.errorContainer.opacity12;
+    // }
     if (type == CommonCardType.filled) {
       if (isSelected) {
         return colorScheme.secondaryContainer.opacity80;
@@ -144,8 +173,11 @@ class CommonCard extends StatelessWidget {
     return colorScheme.surfaceContainerLow;
   }
 
-  Color? getForegroundColor(BuildContext context, Set<WidgetState> states) {
+  Color? _buildForegroundColor(BuildContext context) {
     final colorScheme = context.colorScheme;
+    if (isError) {
+      return colorScheme.error;
+    }
     if (type == CommonCardType.filled) {
       if (isSelected) {
         return colorScheme.onSecondaryContainer;
@@ -156,6 +188,14 @@ class CommonCard extends StatelessWidget {
       return colorScheme.onSecondaryContainer;
     }
     return colorScheme.onSurfaceVariant;
+  }
+
+  Color? _buildIconColor(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    if (isError) {
+      return colorScheme.error;
+    }
+    return colorScheme.primary;
   }
 
   @override
@@ -182,31 +222,59 @@ class CommonCard extends StatelessWidget {
       childWidget = Stack(children: children);
     }
 
-    final card = OutlinedButton(
-      onLongPress: onLongPress,
-      clipBehavior: Clip.antiAlias,
-      style: ButtonStyle(
-        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-        shape: WidgetStatePropertyAll(
-          RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.circular(radius ?? 14),
-          ),
-        ),
-        iconColor: WidgetStatePropertyAll(context.colorScheme.primary),
-        iconSize: WidgetStateProperty.all(20),
-        backgroundColor: WidgetStateProperty.resolveWith(
-          (states) => getBackgroundColor(context, states),
-        ),
-        foregroundColor: WidgetStateProperty.resolveWith(
-          (states) => getForegroundColor(context, states),
-        ),
-        side: WidgetStateProperty.resolveWith(
-          (states) => getBorderSide(context, states),
-        ),
+    final card = switch (type == CommonCardType.filled) {
+      true => FilledButton(
+        onLongPress: onLongPress,
+        clipBehavior: Clip.antiAlias,
+        style:
+            FilledButton.styleFrom(
+              padding: padding ?? EdgeInsets.zero,
+              shape:
+                  shape ??
+                  RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.circular(radius ?? 14),
+                  ),
+              iconSize: 20,
+              iconColor: _buildIconColor(context),
+              foregroundColor: _buildForegroundColor(context),
+              side: BorderSide.none,
+              elevation: 0,
+            ).copyWith(
+              backgroundColor: WidgetStatePropertyAll(
+                _buildBackgroundColor(context),
+              ),
+              side: WidgetStateProperty.resolveWith(
+                (states) => _buildBorderSide(context, states),
+              ),
+            ),
+        onPressed: onPressed,
+        child: childWidget,
       ),
-      onPressed: onPressed,
-      child: childWidget,
-    );
+      false => OutlinedButton(
+        onLongPress: onLongPress,
+        clipBehavior: Clip.antiAlias,
+        style:
+            OutlinedButton.styleFrom(
+              padding: padding ?? EdgeInsets.zero,
+              shape:
+                  shape ??
+                  RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.circular(radius ?? 14),
+                  ),
+              iconSize: 20,
+              iconColor: _buildIconColor(context),
+              backgroundColor: _buildBackgroundColor(context),
+              foregroundColor: _buildForegroundColor(context),
+              elevation: 0,
+            ).copyWith(
+              side: WidgetStateProperty.resolveWith(
+                (states) => _buildBorderSide(context, states),
+              ),
+            ),
+        onPressed: onPressed,
+        child: childWidget,
+      ),
+    };
 
     return switch (enterAnimated) {
       true => FadeScaleEnterBox(child: card),
@@ -240,7 +308,7 @@ class SettingsBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       child: Column(
         children: [
           InfoHeader(info: Info(label: title)),

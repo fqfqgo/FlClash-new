@@ -1,9 +1,10 @@
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/core/core.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 double get listHeaderHeight {
   final measure = globalState.measure;
@@ -21,64 +22,79 @@ double getItemHeight(ProxyCardType proxyCardType) {
   };
 }
 
+List<Group> getCurrentGroups() {
+  return globalState.container.read(currentGroupsStateProvider).value;
+}
+
+List<Group> getGroups() {
+  return globalState.container.read(groupsProvider);
+}
+
+String? getCurrentGroupName() {
+  return globalState.container.read(
+    currentProfileProvider.select((state) => state?.currentGroupName),
+  );
+}
+
+void updateCurrentGroupName(String groupName) {
+  globalState.container
+      .read(proxiesActionProvider.notifier)
+      .updateCurrentGroupName(groupName);
+}
+
+void updateCurrentUnfoldSet(Set<String> value) {
+  globalState.container
+      .read(proxiesActionProvider.notifier)
+      .updateCurrentUnfoldSet(value);
+}
+
 Future<void> proxyDelayTest(Proxy proxy, [String? testUrl]) async {
-  final groups = appController.groups;
-  final selectedMap = appController.currentProfile?.selectedMap ?? {};
+  final ref = globalState.container;
+  final groups = getGroups();
+  final selectedMap = ref.read(
+    currentProfileProvider.select((state) => state?.selectedMap ?? {}),
+  );
   final state = computeRealSelectedProxyState(
     proxy.name,
     groups: groups,
     selectedMap: selectedMap,
   );
   final currentTestUrl = state.testUrl.takeFirstValid([
-    appController.getRealTestUrl(testUrl),
+    ref.read(realTestUrlProvider(testUrl)),
   ]);
   if (state.proxyName.isEmpty) {
     return;
   }
-  appController.setDelay(
-    Delay(url: currentTestUrl, name: state.proxyName, value: 0),
-  );
-  appController.setDelay(
-    await coreController.getDelay(currentTestUrl, state.proxyName),
-  );
+  ref
+      .read(proxiesActionProvider.notifier)
+      .setDelay(Delay(url: currentTestUrl, name: state.proxyName, value: 0));
+  ref
+      .read(proxiesActionProvider.notifier)
+      .setDelay(await coreController.getDelay(currentTestUrl, state.proxyName));
 }
 
 Future<void> delayTest(List<Proxy> proxies, [String? testUrl]) async {
-  final proxyNames = proxies.map((proxy) => proxy.name).toSet().toList();
-
-  final delayProxies = proxyNames.map<Future>((proxyName) async {
-    final groups = appController.groups;
-    final selectedMap = appController.currentProfile?.selectedMap ?? {};
-    final state = computeRealSelectedProxyState(
-      proxyName,
-      groups: groups,
-      selectedMap: selectedMap,
-    );
-    final url = state.testUrl.takeFirstValid([
-      appController.getRealTestUrl(testUrl),
-    ]);
-    final name = state.proxyName;
-    if (name.isEmpty) {
-      return;
-    }
-    appController.setDelay(Delay(url: url, name: name, value: 0));
-    appController.setDelay(await coreController.getDelay(url, name));
+  final delayProxies = proxies.map<Future>((proxy) async {
+    await proxyDelayTest(proxy, testUrl);
   }).toList();
 
   final batchesDelayProxies = delayProxies.batch(100);
   for (final batchDelayProxies in batchesDelayProxies) {
     await Future.wait(batchDelayProxies);
   }
-  appController.addSortNum();
+  globalState.container.read(sortNumProvider.notifier).add();
 }
 
 double getScrollToSelectedOffset({
   required String groupName,
   required List<Proxy> proxies,
 }) {
-  final columns = appController.getProxiesColumns();
-  final proxyCardType = appController.config.proxiesStyleProps.cardType;
-  final selectedProxyName = appController.getSelectedProxyName(groupName);
+  final ref = globalState.container;
+  final columns = ref.read(proxiesColumnsProvider);
+  final proxyCardType = ref.read(
+    proxiesStyleSettingProvider.select((state) => state.cardType),
+  );
+  final selectedProxyName = ref.read(selectedProxyNameProvider(groupName));
   final findSelectedIndex = proxies.indexWhere(
     (proxy) => proxy.name == selectedProxyName,
   );

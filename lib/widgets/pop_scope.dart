@@ -1,7 +1,9 @@
 import 'dart:async';
 
-import 'package:fl_clash/controller.dart';
+import 'package:fl_clash/providers/app.dart';
+import 'package:fl_clash/state.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CommonPopScope extends StatelessWidget {
   final Widget child;
@@ -42,21 +44,21 @@ class CommonPopScope extends StatelessWidget {
   }
 }
 
-class SystemBackBlock extends StatefulWidget {
+class SystemBackBlock extends ConsumerStatefulWidget {
   final Widget child;
 
   const SystemBackBlock({super.key, required this.child});
 
   @override
-  State<SystemBackBlock> createState() => _SystemBackBlockState();
+  ConsumerState<SystemBackBlock> createState() => _SystemBackBlockState();
 }
 
-class _SystemBackBlockState extends State<SystemBackBlock> {
+class _SystemBackBlockState extends ConsumerState<SystemBackBlock> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      appController.backBlock();
+      globalState.container.read(backBlockProvider.notifier).backBlock();
     });
   }
 
@@ -64,7 +66,7 @@ class _SystemBackBlockState extends State<SystemBackBlock> {
   void dispose() {
     super.dispose();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      appController.unBackBlock();
+      globalState.container.read(backBlockProvider.notifier).unBackBlock();
     });
   }
 

@@ -37,9 +37,10 @@ class ThemeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return BaseScaffold(
       title: appLocalizations.theme,
-      body: CustomScrollView(
+      body: const CustomScrollView(
         slivers: [
           _ThemeModeItem(),
           SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -84,10 +85,11 @@ class _ThemeModeItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final appLocalizations = context.appLocalizations;
     final themeMode = ref.watch(
       themeSettingProvider.select((state) => state.themeMode),
     );
-    List<ThemeModeItem> themeModeItems = [
+    final List<ThemeModeItem> themeModeItems = [
       ThemeModeItem(
         iconData: Icons.auto_mode,
         label: appLocalizations.auto,
@@ -168,7 +170,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
 
   Future<void> _handleReset() async {
     final res = await globalState.showMessage(
-      message: TextSpan(text: appLocalizations.resetTip),
+      message: TextSpan(text: context.appLocalizations.resetTip),
     );
     if (res != true) {
       return;
@@ -183,6 +185,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
   }
 
   Future<void> _handleDel() async {
+    final appLocalizations = context.appLocalizations;
     if (_removablePrimaryColor == null) {
       return;
     }
@@ -216,8 +219,9 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
   }
 
   Future<void> _handleAdd() async {
+    final appLocalizations = context.appLocalizations;
     final res = await globalState.showCommonDialog<int>(
-      child: _PaletteDialog(),
+      child: const _PaletteDialog(),
     );
     if (res == null) {
       return;
@@ -244,7 +248,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     );
     final value = await globalState.showCommonDialog<DynamicSchemeVariant>(
       child: OptionsDialog<DynamicSchemeVariant>(
-        title: appLocalizations.colorSchemes,
+        title: context.appLocalizations.colorSchemes,
         options: DynamicSchemeVariant.values,
         textBuilder: (item) => Intl.message('${item.name}Scheme'),
         value: schemeVariant,
@@ -260,6 +264,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     final vm4 = ref.watch(
       themeSettingProvider.select(
         (state) => VM4(
@@ -320,10 +325,10 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
             if (_removablePrimaryColor == null && !isEquals)
               IconButton.filledTonal(
                 iconSize: 20,
-                padding: EdgeInsets.all(4),
+                padding: const EdgeInsets.all(4),
                 visualDensity: VisualDensity.compact,
                 onPressed: _handleReset,
-                icon: Icon(Icons.replay),
+                icon: const Icon(Icons.replay),
               ),
           ], space: 8),
           child: Container(
@@ -374,10 +379,10 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
                                 _removablePrimaryColor == color)
                               Container(
                                 color: Colors.white.opacity0,
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 child: IconButton.filledTonal(
                                   onPressed: _handleDel,
-                                  padding: EdgeInsets.all(12),
+                                  padding: const EdgeInsets.all(12),
                                   iconSize: 30,
                                   icon: Icon(
                                     color: context.colorScheme.primary,
@@ -392,7 +397,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
                       Container(
                         width: itemWidth,
                         height: itemWidth,
-                        padding: EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(4),
                         child: IconButton.filledTonal(
                           onPressed: _handleAdd,
                           iconSize: 32,
@@ -418,12 +423,13 @@ class _PrueBlackItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final appLocalizations = context.appLocalizations;
     final prueBlack = ref.watch(
       themeSettingProvider.select((state) => state.pureBlack),
     );
     return SliverToBoxAdapter(
       child: ListItem.switchItem(
-        leading: Icon(Icons.contrast),
+        leading: const Icon(Icons.contrast),
         horizontalTitleGap: 12,
         title: Text(
           appLocalizations.pureBlackMode,
@@ -449,6 +455,7 @@ class _TextScaleFactorItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final appLocalizations = context.appLocalizations;
     final textScale = ref.watch(
       themeSettingProvider.select((state) => state.textScale),
     );
@@ -458,9 +465,9 @@ class _TextScaleFactorItem extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: 8),
             child: ListItem.switchItem(
-              leading: Icon(Icons.text_fields),
+              leading: const Icon(Icons.text_fields),
               horizontalTitleGap: 12,
               title: Text(
                 appLocalizations.textScale,
@@ -481,7 +488,7 @@ class _TextScaleFactorItem extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.max,
@@ -513,7 +520,7 @@ class _TextScaleFactorItem extends ConsumerWidget {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(right: 4),
+                  padding: const EdgeInsets.only(right: 4),
                   child: Text(process, style: context.textTheme.titleMedium),
                 ),
               ],
@@ -537,6 +544,7 @@ class _PaletteDialogState extends State<_PaletteDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return CommonDialog(
       title: appLocalizations.palette,
       actions: [
@@ -555,13 +563,13 @@ class _PaletteDialogState extends State<_PaletteDialog> {
       ],
       child: Column(
         children: [
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           SizedBox(
             width: 250,
             height: 250,
             child: Palette(controller: _controller),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           ValueListenableBuilder(
             valueListenable: _controller,
             builder: (_, color, _) {

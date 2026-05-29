@@ -13,13 +13,13 @@ class Protocol {
   }
 
   void register(String scheme) {
-    String protocolRegKey = 'Software\\Classes\\$scheme';
-    RegistryValue protocolRegValue = RegistryValue.string(
+    final String protocolRegKey = 'Software\\Classes\\$scheme';
+    const RegistryValue protocolRegValue = RegistryValue.string(
       'URL Protocol',
       '',
     );
-    String protocolCmdRegKey = 'shell\\open\\command';
-    RegistryValue protocolCmdRegValue = RegistryValue.string(
+    const String protocolCmdRegKey = 'shell\\open\\command';
+    final RegistryValue protocolCmdRegValue = RegistryValue.string(
       '',
       '"${Platform.resolvedExecutable}" "%1"',
     );

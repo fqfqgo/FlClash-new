@@ -41,9 +41,11 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-#AI generated
-CLAUDE.md
-/.claude
+# Claude Code - ignore user-specific settings only
+.claude/settings.local.json
+
+# Documentation (generated/planning artifacts)
+docs/
 
 
 # Android Studio will place build artifacts here
@@ -64,6 +66,11 @@ CLAUDE.md
 /android/app/src/main/jniLibs/
 /services/helper/target
 /macos/**/Package.resolved
+/macos/build/
+/env.json
+/core_sha256.json
+/core/*.exe
+/plugins/rust_api/.claude/
 devtools_options.yaml
 
 # FVM Version Cache

@@ -176,13 +176,13 @@ class CommonScaffoldState extends State<CommonScaffold> {
     if (_isEdit) {
       return IconButton(
         onPressed: _appBarState.value.editState?.onExit,
-        icon: Icon(Icons.close),
+        icon: const Icon(Icons.close),
       );
     }
     if (_isSearch) {
       return IconButton(
         onPressed: handleExitSearching,
-        icon: Icon(Icons.arrow_back),
+        icon: const Icon(Icons.arrow_back),
       );
     }
     return backAction != null
@@ -198,6 +198,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
   }
 
   Widget _buildTitle(AppBarSearchState? startState) {
+    final appLocalizations = context.appLocalizations;
     return _isSearch
         ? TextField(
             autofocus: true,
@@ -222,7 +223,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
   List<Widget> _buildActions(bool hasSearch, List<Widget> actions) {
     if (_isSearch) {
       return genActions([
-        IconButton(onPressed: _handleClear, icon: Icon(Icons.close)),
+        IconButton(onPressed: _handleClear, icon: const Icon(Icons.close)),
       ]);
     }
     return genActions([
@@ -231,7 +232,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
           onPressed: () {
             _updateSearchState((state) => state?.copyWith(query: ''));
           },
-          icon: Icon(Icons.search),
+          icon: const Icon(Icons.search),
         ),
       ...actions,
     ]);
@@ -316,7 +317,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
                 });
               }
               if (keywords.isEmpty) {
-                return SizedBox();
+                return const SizedBox();
               }
               return Padding(
                 padding: const EdgeInsets.symmetric(
@@ -378,7 +379,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
 List<Widget> genActions(List<Widget> actions, {double? space}) {
   return <Widget>[
     ...actions.separated(SizedBox(width: space ?? 4)),
-    SizedBox(width: 8),
+    const SizedBox(width: 8),
   ];
 }
 

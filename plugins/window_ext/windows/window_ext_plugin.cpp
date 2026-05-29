@@ -6,12 +6,25 @@
 // For getPlatformVersion; remove unless needed for your plugin implementation.
 #include <VersionHelpers.h>
 
+#include <dwmapi.h>
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
 
 #include <memory>
 #include <sstream>
+
+#ifndef DWMWA_WINDOW_CORNER_PREFERENCE
+#define DWMWA_WINDOW_CORNER_PREFERENCE 33
+#endif
+
+#ifndef DWMWCP_DONOTROUND
+#define DWMWCP_DONOTROUND 1
+#endif
+
+#ifndef DWMWCP_ROUND
+#define DWMWCP_ROUND 2
+#endif
 
 namespace window_ext {
 
@@ -80,6 +93,21 @@ void WindowExtPlugin::HandleMethodCall(
       version_stream << "7";
     }
     result->Success(flutter::EncodableValue(version_stream.str()));
+  } else if (method_call.method_name().compare("setWindowCornerPreference") == 0) {
+    HWND hWnd = ::GetAncestor(registrar->GetView()->GetNativeWindow(), GA_ROOT);
+    if (hWnd) {
+      const auto *args = std::get_if<flutter::EncodableMap>(method_call.arguments());
+      if (args) {
+        auto round_it = args->find(flutter::EncodableValue("round"));
+        if (round_it != args->end()) {
+          bool round = std::get<bool>(round_it->second);
+          DWORD preference = round ? DWMWCP_ROUND : DWMWCP_DONOTROUND;
+          DwmSetWindowAttribute(hWnd, DWMWA_WINDOW_CORNER_PREFERENCE,
+                                &preference, sizeof(preference));
+        }
+      }
+    }
+    result->Success();
   } else {
     result->NotImplemented();
   }

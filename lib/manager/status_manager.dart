@@ -102,7 +102,7 @@ class StatusManagerState extends State<StatusManager> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: AnimatedSize(
                   duration: animateDuration,
                   child: ValueListenableBuilder(
@@ -111,7 +111,7 @@ class StatusManagerState extends State<StatusManager> {
                       return FadeThroughBox(
                         alignment: Alignment.centerRight,
                         child: messages.isEmpty
-                            ? SizedBox()
+                            ? const SizedBox()
                             : LayoutBuilder(
                                 key: Key(messages.last.id),
                                 builder: (_, constraints) {
@@ -132,10 +132,10 @@ class StatusManagerState extends State<StatusManager> {
                                           .surfaceContainerHigh,
                                       child: Container(
                                         width: min(constraints.maxWidth, 500),
-                                        constraints: BoxConstraints(
+                                        constraints: const BoxConstraints(
                                           minHeight: 54,
                                         ),
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                           horizontal: 16,
                                           vertical: 8,
                                         ),
@@ -158,7 +158,7 @@ class StatusManagerState extends State<StatusManager> {
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
-                                            SizedBox(width: 16),
+                                            const SizedBox(width: 16),
                                             if (messages.last.actionState !=
                                                 null)
                                               CommonMinFilledButtonTheme(

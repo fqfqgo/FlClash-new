@@ -16,6 +16,7 @@ const browserUa =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 const packageName = 'com.follow.clash';
 final unixSocketPath = '/tmp/FlClashSocket_${Random().nextInt(10000)}.sock';
+final windowsPipeName = '\\\\.\\pipe\\FlClashCore_${Random().nextInt(10000)}';
 const helperPort = 47890;
 const maxTextScale = 1.4;
 const minTextScale = 0.8;
@@ -29,8 +30,9 @@ final listHeaderPadding = EdgeInsets.only(
   top: 24.mAp,
   bottom: 8.mAp,
 );
+const sheetAppBarHeight = 68.0;
 
-const watchExecution = true;
+const watchExecution = false;
 
 final defaultTextScaleFactor =
     WidgetsBinding.instance.platformDispatcher.textScaleFactor;
@@ -62,7 +64,7 @@ const defaultTestUrl = 'http://cp.cloudflare.com';
 final commonFilter = ImageFilter.blur(
   sigmaX: 5,
   sigmaY: 5,
-  tileMode: TileMode.mirror,
+  tileMode: TileMode.clamp,
 );
 
 const listEquality = ListEquality();
@@ -77,6 +79,7 @@ const scriptListEquality = ListEquality<Script>();
 const externalProviderListEquality = ListEquality<ExternalProvider>();
 const packageListEquality = ListEquality<Package>();
 const profileListEquality = ListEquality<Profile>();
+const proxyGroupsEquality = ListEquality<ProxyGroup>();
 const hotKeyActionListEquality = ListEquality<HotKeyAction>();
 const stringAndStringMapEquality = MapEquality<String, String>();
 const stringAndStringMapEntryListEquality =
@@ -108,9 +111,9 @@ double getWidgetHeight(num lines) {
 
 const maxLength = 1000;
 
-final mainIsolate = 'FlClashMainIsolate';
+const mainIsolate = 'FlClashMainIsolate';
 
-final serviceIsolate = 'FlClashServiceIsolate';
+const serviceIsolate = 'FlClashServiceIsolate';
 
 const defaultPrimaryColors = [
   0xFF795548,

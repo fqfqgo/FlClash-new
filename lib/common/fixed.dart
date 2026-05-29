@@ -27,7 +27,7 @@ class FixedList<T> {
   FixedList<T> copyWith() {
     return FixedList(
       maxLength,
-      list: _list,
+      list: List.of(_list),
     );
   }
 }

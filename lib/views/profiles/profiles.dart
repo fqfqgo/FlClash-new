@@ -1,11 +1,9 @@
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/pages/editor.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/profiles/overwrite.dart';
+import 'package:fl_clash/views/profiles/overwrite/overwrite.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'add.dart';
 import 'edit.dart';
+import 'preview.dart';
 
 class ProfilesView extends StatefulWidget {
   const ProfilesView({super.key});
@@ -25,16 +24,33 @@ class _ProfilesViewState extends State<ProfilesView> {
   Function? applyConfigDebounce;
   bool _isUpdating = false;
 
+  // final GlobalKey _targetKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final context = _targetKey.currentContext;
+    //   if (context == null) {
+    //     return;
+    //   }
+    //   Scrollable.ensureVisible(
+    //     context,
+    //     duration: commonDuration,
+    //     alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+    //   );
+    // });
+  }
+
   void _handleShowAddExtendPage() {
     showExtend(
       globalState.navigatorKey.currentState!.context,
-      builder: (_, type) {
+      builder: (_) {
         return AdaptiveSheetScaffold(
-          type: type,
           body: AddProfileView(
             context: globalState.navigatorKey.currentState!.context,
           ),
-          title: '${appLocalizations.add}${appLocalizations.profile}',
+          title: context.appLocalizations.addProfile,
         );
       },
     );
@@ -49,7 +65,9 @@ class _ProfilesViewState extends State<ProfilesView> {
     final updateProfiles = profiles.map<Future>((profile) async {
       if (profile.type == ProfileType.file) return;
       try {
-        await appController.updateProfile(profile, showLoading: true);
+        await globalState.container
+            .read(profilesActionProvider.notifier)
+            .updateProfile(profile, showLoading: true);
       } catch (e) {
         messages.add(
           UpdatingMessage(label: profile.realLabel, message: e.toString()),
@@ -76,11 +94,8 @@ class _ProfilesViewState extends State<ProfilesView> {
               onPressed: () {
                 showSheet(
                   context: context,
-                  builder: (_, type) {
-                    return ReorderableProfilesSheet(
-                      type: type,
-                      profiles: profiles,
-                    );
+                  builder: (_) {
+                    return ReorderableProfilesSheet(profiles: profiles);
                   },
                 );
               },
@@ -103,6 +118,7 @@ class _ProfilesViewState extends State<ProfilesView> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (_, ref, _) {
+        final appLocalizations = context.appLocalizations;
         final isLoading = ref.watch(loadingProvider(LoadingTag.profiles));
         final state = ref.watch(profilesStateProvider);
         final spacing = 14.mAp;
@@ -114,7 +130,7 @@ class _ProfilesViewState extends State<ProfilesView> {
           body: state.profiles.isEmpty
               ? NullStatus(
                   label: appLocalizations.nullProfileDesc,
-                  illustration: ProfileEmptyIllustration(),
+                  illustration: const ProfileEmptyIllustration(),
                 )
               : Align(
                   alignment: Alignment.topCenter,
@@ -134,7 +150,6 @@ class _ProfilesViewState extends State<ProfilesView> {
                         for (int i = 0; i < state.profiles.length; i++)
                           GridItem(
                             child: ProfileItem(
-                              key: Key(state.profiles[i].id.toString()),
                               profile: state.profiles[i],
                               groupValue: state.currentProfileId,
                               onChanged: (profileId) {
@@ -168,6 +183,7 @@ class ProfileItem extends StatelessWidget {
   });
 
   Future<void> _handleDeleteProfile(BuildContext context) async {
+    final appLocalizations = context.appLocalizations;
     final res = await globalState.showMessage(
       title: appLocalizations.tip,
       message: TextSpan(
@@ -177,36 +193,31 @@ class ProfileItem extends StatelessWidget {
     if (res != true) {
       return;
     }
-    await appController.deleteProfile(profile.id);
+    await globalState.container
+        .read(profilesActionProvider.notifier)
+        .deleteProfile(profile.id);
   }
 
   Future<void> _handlePreview(BuildContext context) async {
-    final configMap = await appController.getProfileWithId(profile.id);
-    final content = await encodeYamlTask(configMap);
-    if (!context.mounted) {
-      return;
-    }
-
-    final previewPage = EditorPage(title: profile.realLabel, content: content);
-    BaseNavigator.push<String>(context, previewPage);
+    BaseNavigator.push<String>(context, PreviewProfileView(profile: profile));
   }
 
   Future updateProfile() async {
     if (profile.type == ProfileType.file) return;
-    try {} finally {}
-    await appController.loadingRun(() async {
-      await appController.updateProfile(profile, showLoading: true);
+    await globalState.loadingRun(() async {
+      await globalState.container
+          .read(profilesActionProvider.notifier)
+          .updateProfile(profile, showLoading: true);
     }, tag: LoadingTag.profiles);
   }
 
   void _handleShowEditExtendPage(BuildContext context) {
     showExtend(
       context,
-      builder: (_, type) {
+      builder: (_) {
         return AdaptiveSheetScaffold(
-          type: type,
           body: EditProfileView(profile: profile, context: context),
-          title: '${appLocalizations.edit}${appLocalizations.profile}',
+          title: context.appLocalizations.edit,
         );
       },
     );
@@ -218,8 +229,8 @@ class ProfileItem extends StatelessWidget {
       const SizedBox(height: 8),
       if (subscriptionInfo != null)
         SubscriptionInfoView(subscriptionInfo: subscriptionInfo),
-      Text(
-        profile.lastUpdateDate?.lastUpdateTimeDesc ?? '',
+      LastUpdateTimeText(
+        lastUpdateDate: profile.lastUpdateDate,
         style: context.textTheme.labelMedium?.toLighter,
       ),
     ];
@@ -228,8 +239,8 @@ class ProfileItem extends StatelessWidget {
   List<Widget> _buildFileProfileInfo(BuildContext context) {
     return [
       const SizedBox(height: 8),
-      Text(
-        profile.lastUpdateDate?.lastUpdateTimeDesc ?? '',
+      LastUpdateTimeText(
+        lastUpdateDate: profile.lastUpdateDate,
         style: context.textTheme.labelMedium?.toLight,
       ),
     ];
@@ -238,12 +249,13 @@ class ProfileItem extends StatelessWidget {
   Future<void> _handleCopyLink(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: profile.url));
     if (context.mounted) {
-      context.showNotifier(appLocalizations.copySuccess);
+      context.showNotifier(context.appLocalizations.copySuccess);
     }
   }
 
   Future<void> _handleExportFile(BuildContext context) async {
-    final res = await appController.safeRun<bool>(() async {
+    final appLocalizations = context.appLocalizations;
+    final res = await globalState.safeRun<bool>(() async {
       final mFile = await profile.file;
       final value = await picker.saveFile(
         profile.realLabel,
@@ -263,6 +275,7 @@ class ProfileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return CommonCard(
       isSelected: profile.id == groupValue,
       onPressed: () {
@@ -288,7 +301,7 @@ class ProfileItem extends StatelessWidget {
                         child: CircularProgressIndicator(),
                       )
                     : CommonPopupBox(
-                        key: ValueKey('menu'),
+                        key: const ValueKey('menu'),
                         popup: CommonPopupMenu(
                           items: [
                             PopupMenuItemData(
@@ -374,7 +387,7 @@ class ProfileItem extends StatelessWidget {
                             onPressed: () {
                               open();
                             },
-                            icon: Icon(Icons.more_vert),
+                            icon: const Icon(Icons.more_vert),
                           );
                         },
                       ),
@@ -414,15 +427,37 @@ class ProfileItem extends StatelessWidget {
   }
 }
 
+class LastUpdateTimeText extends StatelessWidget {
+  final DateTime? lastUpdateDate;
+  final TextStyle? style;
+
+  const LastUpdateTimeText({
+    super.key,
+    required this.lastUpdateDate,
+    this.style,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (lastUpdateDate == null) {
+      return Text('', style: style);
+    }
+    return TickBuilder(
+      duration: const Duration(minutes: 1),
+      builder: (context, _) {
+        return Text(
+          lastUpdateDate!.getLastUpdateTimeDesc(context),
+          style: style,
+        );
+      },
+    );
+  }
+}
+
 class ReorderableProfilesSheet extends StatefulWidget {
   final List<Profile> profiles;
-  final SheetType type;
 
-  const ReorderableProfilesSheet({
-    super.key,
-    required this.profiles,
-    required this.type,
-  });
+  const ReorderableProfilesSheet({super.key, required this.profiles});
 
   @override
   State<ReorderableProfilesSheet> createState() =>
@@ -438,61 +473,42 @@ class _ReorderableProfilesSheetState extends State<ReorderableProfilesSheet> {
     profiles = List.from(widget.profiles);
   }
 
-  Widget _buildItem(int index, [bool isDecorator = false]) {
-    final isLast = index == profiles.length - 1;
-    final isFirst = index == 0;
+  Widget _buildItem(int index) {
+    final position = ItemPosition.get(index, profiles.length);
     final profile = profiles[index];
-    return CommonInputListItem(
+    return ItemPositionProvider(
       key: Key(profile.id.toString()),
-      trailing: ReorderableDelayedDragStartListener(
-        index: index,
-        child: const Icon(Icons.drag_handle),
+      position: position,
+      child: DecorationListItem(
+        trailing: ReorderableDelayedDragStartListener(
+          index: index,
+          child: const Icon(Icons.drag_handle),
+        ),
+        title: Text(profile.realLabel),
       ),
-      title: Text(profile.realLabel),
-      isFirst: isFirst,
-      isLast: isLast,
-      isDecorator: isDecorator,
     );
   }
 
   void _handleSave() {
     Navigator.of(context).pop();
-    appController.reorder(profiles);
+    globalState.container.read(profilesProvider.notifier).reorder(profiles);
   }
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return AdaptiveSheetScaffold(
-      type: widget.type,
-      actions: [
-        if (widget.type == SheetType.bottomSheet)
-          IconButton.filledTonal(
-            onPressed: _handleSave,
-            style: IconButton.styleFrom(
-              visualDensity: VisualDensity.comfortable,
-              tapTargetSize: MaterialTapTargetSize.padded,
-              padding: EdgeInsets.all(8),
-              iconSize: 20,
-            ),
-            icon: Icon(Icons.check),
-          )
-        else
-          IconButton.filledTonal(
-            icon: Icon(Icons.check),
-            onPressed: _handleSave,
-          ),
-      ],
+      sheetTransparentToolBar: true,
+      actions: [IconButtonData(icon: Icons.check, onPressed: _handleSave)],
       body: Padding(
-        padding: EdgeInsets.only(bottom: 32, top: 12),
+        padding: const EdgeInsets.only(bottom: 32),
         child: ReorderableListView.builder(
           buildDefaultDragHandles: false,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+          ).copyWith(top: context.sheetTopPadding),
           proxyDecorator: (child, index, animation) {
-            return commonProxyDecorator(
-              _buildItem(index, true),
-              index,
-              animation,
-            );
+            return commonProxyDecorator(_buildItem(index), index, animation);
           },
           onReorder: (oldIndex, newIndex) {
             setState(() {

@@ -10,6 +10,7 @@ class IntranetIP extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return SizedBox(
       height: getWidgetHeight(1),
       child: CommonCard(
@@ -40,8 +41,8 @@ class IntranetIP extends StatelessWidget {
                               ),
                             )
                           : Container(
-                              padding: EdgeInsets.all(2),
-                              child: AspectRatio(
+                              padding: const EdgeInsets.all(2),
+                              child: const AspectRatio(
                                 aspectRatio: 1,
                                 child: CommonCircleLoading(),
                               ),

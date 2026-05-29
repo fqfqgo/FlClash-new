@@ -39,7 +39,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
       } else {
         _memoryStateNotifier.value = rss;
       }
-      timer = Timer(Duration(seconds: 2), () async {
+      timer = Timer(const Duration(seconds: 2), () async {
         _updateMemory();
       });
     });
@@ -47,46 +47,52 @@ class _MemoryInfoState extends State<MemoryInfo> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return SizedBox(
       height: getWidgetHeight(1),
-      child: CommonCard(
-        info: Info(iconData: Icons.memory, label: appLocalizations.memoryInfo),
-        onPressed: () {
-          coreController.requestGc();
-        },
-        child: Container(
-          padding: baseInfoEdgeInsets.copyWith(top: 0),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: globalState.measure.bodyMediumHeight + 2,
-                child: ValueListenableBuilder(
-                  valueListenable: _memoryStateNotifier,
-                  builder: (_, memory, _) {
-                    final traffic = memory.traffic;
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          traffic.value,
-                          style: context.textTheme.bodyMedium?.toLight
-                              .adjustSize(1),
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          traffic.unit,
-                          style: context.textTheme.bodyMedium?.toLight
-                              .adjustSize(1),
-                        ),
-                      ],
-                    );
-                  },
+      child: RepaintBoundary(
+        child: CommonCard(
+          info: Info(
+            iconData: Icons.memory,
+            label: appLocalizations.memoryInfo,
+          ),
+          onPressed: () {
+            coreController.requestGc();
+          },
+          child: Container(
+            padding: baseInfoEdgeInsets.copyWith(top: 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: globalState.measure.bodyMediumHeight + 2,
+                  child: ValueListenableBuilder(
+                    valueListenable: _memoryStateNotifier,
+                    builder: (_, memory, _) {
+                      final traffic = memory.traffic;
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            traffic.value,
+                            style: context.textTheme.bodyMedium?.toLight
+                                .adjustSize(1),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            traffic.unit,
+                            style: context.textTheme.bodyMedium?.toLight
+                                .adjustSize(1),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

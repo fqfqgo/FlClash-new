@@ -92,7 +92,7 @@ class _SideSheetState extends State<SideSheet> {
 
     final Clip clipBehavior = widget.clipBehavior ?? Clip.none;
 
-    Widget sideSheet = Material(
+    final Widget sideSheet = Material(
       key: _childKey,
       color: color,
       elevation: elevation,

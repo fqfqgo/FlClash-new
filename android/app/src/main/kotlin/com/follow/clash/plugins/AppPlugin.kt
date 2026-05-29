@@ -9,12 +9,15 @@ import android.content.pm.ComponentInfo
 import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
+import androidx.core.net.toUri
 import com.android.tools.smali.dexlib2.dexbacked.DexBackedDexFile
 import com.follow.clash.R
 import com.follow.clash.common.Components
@@ -157,6 +160,18 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 result.success(true)
             }
 
+            "isBatteryOptimizationDisabled" -> {
+                result.success(isBatteryOptimizationDisabled())
+            }
+
+            "openBatteryOptimizationSettings" -> {
+                result.success(openBatteryOptimizationSettings())
+            }
+
+            "openAppSettings" -> {
+                result.success(openAppSettings())
+            }
+
             else -> {
                 result.notImplemented()
             }
@@ -194,6 +209,36 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
 
     private fun tip(message: String?) {
         GlobalState.application.showToast(message)
+    }
+
+    private fun isBatteryOptimizationDisabled(): Boolean {
+        val powerManager = getSystemService(GlobalState.application, PowerManager::class.java)
+        return powerManager?.isIgnoringBatteryOptimizations(GlobalState.application.packageName)
+            ?: false
+    }
+
+    private fun openBatteryOptimizationSettings(): Boolean {
+        return try {
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = "package:${GlobalState.application.packageName}".toUri()
+            }
+            activityRef?.get()?.startActivity(intent)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun openAppSettings(): Boolean {
+        return try {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = "package:${GlobalState.application.packageName}".toUri()
+            }
+            activityRef?.get()?.startActivity(intent)
+            true
+        } catch (_: Exception) {
+            false
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -304,11 +349,8 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         skipPrefixList.forEach {
             if (packageName == it || packageName.startsWith("$it.")) return false
         }
-        val packageManagerFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        val packageManagerFlags =
             PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.GET_ACTIVITIES or PackageManager.GET_SERVICES or PackageManager.GET_RECEIVERS or PackageManager.GET_PROVIDERS
-        } else {
-            PackageManager.GET_UNINSTALLED_PACKAGES or PackageManager.GET_ACTIVITIES or PackageManager.GET_SERVICES or PackageManager.GET_RECEIVERS or PackageManager.GET_PROVIDERS
-        }
         if (packageName.matches(chinaAppRegex)) {
             return true
         }

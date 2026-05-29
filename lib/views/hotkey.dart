@@ -20,7 +20,8 @@ extension IntlExt on Intl {
 class HotKeyView extends StatelessWidget {
   const HotKeyView({super.key});
 
-  String getSubtitle(HotKeyAction hotKeyAction) {
+  String getSubtitle(BuildContext context, HotKeyAction hotKeyAction) {
+    final appLocalizations = context.appLocalizations;
     final key = hotKeyAction.key;
     if (key == null) {
       return appLocalizations.noHotKey;
@@ -38,6 +39,7 @@ class HotKeyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return BaseScaffold(
       title: appLocalizations.hotkeyManagement,
       body: ListView.builder(
@@ -52,7 +54,7 @@ class HotKeyView extends StatelessWidget {
               return ListItem(
                 title: Text(IntlExt.actionMessage(hotAction.name)),
                 subtitle: Text(
-                  getSubtitle(hotKeyAction),
+                  getSubtitle(context, hotKeyAction),
                   style: context.textTheme.bodyMedium?.copyWith(
                     color: context.colorScheme.primary,
                   ),
@@ -126,6 +128,7 @@ class _HotKeyRecorderState extends ConsumerState<HotKeyRecorder> {
   }
 
   void _handleConfirm() {
+    final appLocalizations = context.appLocalizations;
     Navigator.of(context).pop();
     final hotKeyActions = ref.read(hotKeyActionsProvider);
     final currentHotkeyAction = hotKeyActionNotifier.value;
@@ -175,6 +178,7 @@ class _HotKeyRecorderState extends ConsumerState<HotKeyRecorder> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return Focus(
       onKeyEvent: (_, _) {
         return KeyEventResult.handled;

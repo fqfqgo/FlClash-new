@@ -378,8 +378,8 @@ class _CommonTabBarState<T extends Object> extends State<CommonTabBar<T>>
         clipBehavior: Clip.antiAlias,
         padding: widget.padding.resolve(Directionality.of(context)),
         decoration: ShapeDecoration(
-          shape: RoundedSuperellipseBorder(
-            borderRadius: const BorderRadius.all(_kCornerRadius),
+          shape: const RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.all(_kCornerRadius),
           ),
           color: widget.backgroundColor,
         ),
@@ -580,7 +580,7 @@ class _SegmentSeparatorState extends State<_SegmentSeparator>
         return Padding(
           padding: _kSeparatorInset,
           child: DecoratedBox(
-            decoration: BoxDecoration(color: Colors.transparent),
+            decoration: const BoxDecoration(color: Colors.transparent),
             child: child,
           ),
         );

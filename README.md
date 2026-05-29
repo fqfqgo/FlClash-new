@@ -74,46 +74,51 @@ Support the following actions
 
     - android
 
-        1. Install  `Android SDK` ,  `Android NDK`
+        1. Install `Android SDK`, `Android NDK`
 
-        2. Set `ANDROID_NDK` environment variables
-
-        3. Run Build script
-
-           ```bash
-           dart .\setup.dart android
-           ```
-
-    - windows
-
-        1. You need a windows client
-
-        2. Install  `Gcc`，`Inno Setup`
+        2. Set `ANDROID_NDK` environment variable
 
         3. Run build script
 
            ```bash
-           dart .\setup.dart windows --arch <arm64 | amd64>
+           dart setup.dart android
+           ```
+
+    - windows
+
+        1. Requires a Windows client
+
+        2. Install `GCC`, `Inno Setup`
+
+        3. Run build script
+
+           ```bash
+           dart setup.dart windows
            ```
 
     - linux
 
-        1. You need a linux client
+        1. Requires a Linux client
 
-        2. Run build script
+        2. Dependencies are auto-installed by setup script, or manually:
+           ```bash
+           sudo apt-get install -y libayatana-appindicator3-dev libkeybinder-3.0-dev
+           ```
+
+        3. Run build script
 
            ```bash
-           dart .\setup.dart linux --arch <arm64 | amd64>
+           dart setup.dart linux
            ```
 
     - macOS
 
-        1. You need a macOS client
+        1. Requires a macOS client
 
         2. Run build script
 
            ```bash
-           dart .\setup.dart macos --arch <arm64 | amd64>
+           dart setup.dart macos
            ```
 
 ## Star

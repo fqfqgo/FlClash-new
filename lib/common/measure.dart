@@ -11,14 +11,25 @@ class Measure {
     : _measureMap = {},
       _textScaler = TextScaler.linear(textScaleFactor);
 
-  Size computeTextSize(Text text, {double maxWidth = double.infinity}) {
-    final textPainter = TextPainter(
-      text: TextSpan(text: text.data, style: text.style),
+  TextPainter computeText(Text text, {TextStyle? style, double? maxWidth}) {
+    return TextPainter(
+      text: TextSpan(text: text.data, style: text.style ?? style),
       maxLines: text.maxLines,
       textScaler: _textScaler,
+      ellipsis: '...',
+      locale: Localizations.localeOf(context),
       textDirection: text.textDirection ?? TextDirection.ltr,
-    )..layout(maxWidth: maxWidth);
+    )..layout(maxWidth: maxWidth ?? double.infinity);
+  }
+
+  Size computeTextSize(Text text, {TextStyle? style, double? maxWidth}) {
+    final textPainter = computeText(text, style: style, maxWidth: maxWidth);
     return textPainter.size;
+  }
+
+  bool computeTextIsOverflow(Text text, {TextStyle? style, double? maxWidth}) {
+    final textPainter = computeText(text, style: style, maxWidth: maxWidth);
+    return textPainter.didExceedMaxLines;
   }
 
   double get bodyMediumHeight {

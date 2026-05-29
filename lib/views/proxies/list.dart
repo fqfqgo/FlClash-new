@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/config.dart';
@@ -88,7 +87,7 @@ class _ProxiesListViewState extends State<ProxiesListView> {
     } else {
       tempUnfoldSet.add(groupName);
     }
-    appController.updateCurrentUnfoldSet(tempUnfoldSet);
+    updateCurrentUnfoldSet(tempUnfoldSet);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _adjustHeader();
     });
@@ -99,7 +98,7 @@ class _ProxiesListViewState extends State<ProxiesListView> {
     ProxyCardType proxyCardType,
   ) {
     final itemHeightList = <double>[];
-    List<double> headerOffset = [];
+    final List<double> headerOffset = [];
     double currentHeight = 0;
     for (final item in items) {
       if (item.runtimeType == ListHeader) {
@@ -197,7 +196,7 @@ class _ProxiesListViewState extends State<ProxiesListView> {
     if (_controller.position.maxScrollExtent == 0) {
       return 0;
     }
-    final currentGroups = appController.getCurrentGroups();
+    final currentGroups = getCurrentGroups();
     final findIndex = currentGroups.indexWhere(
       (item) => item.name == groupName,
     );
@@ -257,7 +256,7 @@ class _ProxiesListViewState extends State<ProxiesListView> {
 
   void _scrollToGroupSelected(String groupName) {
     final currentInitOffset = _getGroupOffset(groupName);
-    final currentGroups = appController.getCurrentGroups();
+    final currentGroups = getCurrentGroups();
     final proxies = currentGroups.getGroup(groupName)?.all;
     _jumpTo(
       currentInitOffset +
@@ -284,13 +283,14 @@ class _ProxiesListViewState extends State<ProxiesListView> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return Consumer(
       builder: (_, ref, _) {
         final state = ref.watch(proxiesListStateProvider);
         ref.watch(themeSettingProvider.select((state) => state.textScale));
         if (state.groups.isEmpty) {
           return NullStatus(
-            illustration: ProxyEmptyIllustration(),
+            illustration: const ProxyEmptyIllustration(),
             label: appLocalizations.nullTip(appLocalizations.proxies),
           );
         }
@@ -332,7 +332,7 @@ class _ProxiesListViewState extends State<ProxiesListView> {
                     valueListenable: _headerStateNotifier,
                     builder: (_, headerState, _) {
                       if (headerState == null) {
-                        return SizedBox();
+                        return const SizedBox();
                       }
                       final index =
                           headerState.currentIndex > state.groups.length - 1
@@ -442,9 +442,9 @@ class _ListHeaderState extends State<ListHeader> {
                       color: context.colorScheme.secondaryContainer,
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: CommonTargetIcon(
-                      src: icon,
-                      size: constraints.maxHeight - 12.ap,
+                    child: IconTheme.merge(
+                      data: IconThemeData(size: constraints.maxHeight - 12.ap),
+                      child: CommonTargetIcon(src: icon),
                     ),
                   ),
                 ),
@@ -455,9 +455,9 @@ class _ListHeaderState extends State<ListHeader> {
             margin: const EdgeInsets.only(right: 16),
             child: LayoutBuilder(
               builder: (_, constraints) {
-                return CommonTargetIcon(
-                  src: icon,
-                  size: constraints.maxHeight - 8,
+                return IconTheme.merge(
+                  data: IconThemeData(size: constraints.maxHeight - 8.ap),
+                  child: CommonTargetIcon(src: icon),
                 );
               },
             ),
@@ -511,9 +511,7 @@ class _ListHeaderState extends State<ListHeader> {
                                   builder: (_, ref, _) {
                                     final proxyName = ref
                                         .watch(
-                                          getSelectedProxyNameProvider(
-                                            groupName,
-                                          ),
+                                          selectedProxyNameProvider(groupName),
                                         )
                                         .takeFirstValid([]);
                                     return Row(
@@ -556,11 +554,11 @@ class _ListHeaderState extends State<ListHeader> {
                 if (isExpand) ...[
                   IconButton(
                     visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.all(2),
+                    padding: const EdgeInsets.all(2),
                     onPressed: () {
                       widget.onScrollToSelected(groupName);
                     },
-                    style: ButtonStyle(
+                    style: const ButtonStyle(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     iconSize: 19,
@@ -570,21 +568,21 @@ class _ListHeaderState extends State<ListHeader> {
                   IconButton(
                     iconSize: 20,
                     visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.all(2),
+                    padding: const EdgeInsets.all(2),
                     onPressed: _delayTest,
-                    style: ButtonStyle(
+                    style: const ButtonStyle(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     icon: const Icon(Icons.network_ping),
                   ),
                   const SizedBox(width: 6),
                 ] else
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                 IconButton.filledTonal(
                   visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.all(2),
+                  padding: const EdgeInsets.all(2),
                   iconSize: 24,
-                  style: ButtonStyle(
+                  style: const ButtonStyle(
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   onPressed: () {

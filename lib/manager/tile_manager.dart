@@ -1,5 +1,4 @@
 import 'package:fl_clash/common/app_localizations.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/core/controller.dart';
 import 'package:fl_clash/plugins/app.dart';
 import 'package:fl_clash/plugins/tile.dart';
@@ -29,8 +28,8 @@ class _TileContainerState extends ConsumerState<TileManager> with TileListener {
     if (isStart && coreController.isCompleted) {
       return;
     }
-    appController.updateStatus(true);
-    app?.tip(appLocalizations.startVpn);
+    ref.read(setupActionProvider.notifier).updateStatus(true);
+    app?.tip(currentAppLocalizations.startVpn);
     super.onStart();
   }
 
@@ -39,8 +38,8 @@ class _TileContainerState extends ConsumerState<TileManager> with TileListener {
     if (!isStart) {
       return;
     }
-    appController.updateStatus(false);
-    app?.tip(appLocalizations.stopVpn);
+    ref.read(setupActionProvider.notifier).updateStatus(false);
+    app?.tip(currentAppLocalizations.stopVpn);
     super.onStop();
   }
 

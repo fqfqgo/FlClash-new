@@ -11,7 +11,7 @@ class CommonMinFilledButtonTheme extends StatelessWidget {
     return FilledButtonTheme(
       data: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          padding: EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           visualDensity: VisualDensity.compact,
         ),
@@ -31,7 +31,7 @@ class CommonMinIconButtonTheme extends StatelessWidget {
     return IconButtonTheme(
       data: IconButtonThemeData(
         style: IconButton.styleFrom(
-          padding: EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           visualDensity: VisualDensity.compact,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           iconSize: 20.ap,

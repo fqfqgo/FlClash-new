@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/theme.dart';
-import 'package:fl_clash/controller.dart';
+import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/state.dart';
@@ -109,10 +109,12 @@ class ThemeManager extends ConsumerWidget {
               ),
         ),
         child: LayoutBuilder(
-          builder: (_, container) {
-            appController.updateViewSize(
-              Size(container.maxWidth, container.maxHeight),
-            );
+          builder: (_, constraints) {
+            globalState.container
+                .read(themeActionProvider.notifier)
+                .updateViewSize(
+                  Size(constraints.maxWidth, constraints.maxHeight),
+                );
             return _buildSystemUi(child);
           },
         ),

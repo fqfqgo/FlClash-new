@@ -85,22 +85,24 @@ class NotificationModule(private val service: Service) : Module() {
 
     private val notificationBuilder: NotificationCompat.Builder by lazy {
         val intent = Intent().setComponent(Components.MAIN_ACTIVITY)
-        with(
-            NotificationCompat.Builder(
-                service, GlobalState.NOTIFICATION_CHANNEL
-            )
-        ) {
-            setSmallIcon(R.drawable.ic)
+
+        NotificationCompat.Builder(
+            service, GlobalState.NOTIFICATION_CHANNEL
+        ).apply {
+            setSmallIcon(R.drawable.ic_service)
             setContentTitle("FlClash")
             setContentIntent(intent.toPendingIntent)
             setPriority(NotificationCompat.PRIORITY_HIGH)
             setCategory(NotificationCompat.CATEGORY_SERVICE)
+            setOngoing(true)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 foregroundServiceBehavior = FOREGROUND_SERVICE_IMMEDIATE
             }
-            setOngoing(true)
             setShowWhen(true)
             setOnlyAlertOnce(true)
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+//                setRequestPromotedOngoing(true)
+//            }
         }
     }
 

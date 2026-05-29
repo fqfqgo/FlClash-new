@@ -93,10 +93,7 @@ extension ColorExtension on Color {
         .toColor();
   }
 
-  Color blendDarken(
-    BuildContext context, {
-    double factor = 0.1,
-  }) {
+  Color blendDarken(BuildContext context, {double factor = 0.1}) {
     final brightness = Theme.of(context).brightness;
     return Color.lerp(
       this,
@@ -105,10 +102,7 @@ extension ColorExtension on Color {
     )!;
   }
 
-  Color blendLighten(
-    BuildContext context, {
-    double factor = 0.1,
-  }) {
+  Color blendLighten(BuildContext context, {double factor = 0.1}) {
     final brightness = Theme.of(context).brightness;
     return Color.lerp(
       this,
@@ -122,9 +116,7 @@ extension ColorSchemeExtension on ColorScheme {
   ColorScheme toPureBlack(bool isPrueBlack) => isPrueBlack
       ? copyWith(
           surface: Colors.black,
-          surfaceContainer: surfaceContainer.darken(
-            5,
-          ),
+          surfaceContainer: surfaceContainer.darken(5),
         )
       : this;
 }

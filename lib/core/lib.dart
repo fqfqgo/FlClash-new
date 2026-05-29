@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/core.dart';
 import 'package:fl_clash/plugins/service.dart';
+import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/state.dart';
 
 import 'interface.dart';
 
@@ -17,12 +18,17 @@ class CoreLib extends CoreHandlerInterface {
 
   @override
   Future<String> preload() async {
+    if (_connectedCompleter.isCompleted) {
+      return 'core is connected';
+    }
     final res = await service?.init();
     if (res?.isEmpty != true) {
       return res ?? '';
     }
     _connectedCompleter.complete(true);
-    final syncRes = await service?.syncState(appController.sharedState);
+    final syncRes = await service?.syncState(
+      globalState.container.read(sharedStateProvider),
+    );
     return syncRes ?? '';
   }
 
@@ -32,7 +38,7 @@ class CoreLib extends CoreHandlerInterface {
   }
 
   @override
-  destroy() async {
+  FutureOr<bool> destroy() async {
     return true;
   }
 
@@ -43,6 +49,20 @@ class CoreLib extends CoreHandlerInterface {
     }
     _connectedCompleter = Completer();
     return service?.shutdown() ?? true;
+  }
+
+  @override
+  Future<bool> startListener() async {
+    await super.startListener();
+    await service?.start();
+    return true;
+  }
+
+  @override
+  Future<bool> stopListener() async {
+    await super.stopListener();
+    await service?.stop();
+    return true;
   }
 
   @override

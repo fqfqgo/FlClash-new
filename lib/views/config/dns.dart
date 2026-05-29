@@ -10,6 +10,7 @@ class OverrideItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final override = ref.watch(overrideDnsProvider);
     return ListItem.switchItem(
       title: Text(appLocalizations.overrideDns),
@@ -29,6 +30,7 @@ class StatusItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final enable = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.enable),
     );
@@ -52,6 +54,7 @@ class ListenItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final listen = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.listen),
     );
@@ -85,6 +88,7 @@ class PreferH3Item extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final preferH3 = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.preferH3),
     );
@@ -130,6 +134,7 @@ class RespectRulesItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final respectRules = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.respectRules),
     );
@@ -153,6 +158,7 @@ class DnsModeItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final enhancedMode = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.enhancedMode),
     );
@@ -182,6 +188,7 @@ class FakeIpRangeItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final fakeIpRange = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.fakeIpRange),
     );
@@ -215,6 +222,7 @@ class FakeIpFilterItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final fakeIpFilter = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.fakeIpFilter),
     );
@@ -244,6 +252,7 @@ class DefaultNameserverItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final defaultNameserver = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.defaultNameserver),
     );
@@ -275,6 +284,7 @@ class NameserverItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final nameserver = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.nameserver),
     );
@@ -305,6 +315,7 @@ class UseHostsItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final useHosts = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.useHosts),
     );
@@ -327,6 +338,7 @@ class UseSystemHostsItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final useSystemHosts = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.useSystemHosts),
     );
@@ -349,6 +361,7 @@ class NameserverPolicyItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final nameserverPolicy = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.nameserverPolicy),
     );
@@ -378,6 +391,7 @@ class ProxyServerNameserverItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final proxyServerNameserver = ref.watch(
       patchClashConfigProvider.select(
         (state) => state.dns.proxyServerNameserver,
@@ -411,6 +425,7 @@ class FallbackItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final fallback = ref.watch(
       patchClashConfigProvider.select((state) => state.dns.fallback),
     );
@@ -467,6 +482,7 @@ class GeoipCodeItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final geoipCode = ref.watch(
       patchClashConfigProvider.select(
         (state) => state.dns.fallbackFilter.geoipCode,
@@ -537,6 +553,7 @@ class IpcidrItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final ipcidr = ref.watch(
       patchClashConfigProvider.select(
         (state) => state.dns.fallbackFilter.ipcidr,
@@ -569,6 +586,7 @@ class DomainItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final domain = ref.watch(
       patchClashConfigProvider.select(
         (state) => state.dns.fallbackFilter.domain,
@@ -601,6 +619,7 @@ class DnsOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return Column(
       children: generateSection(
         title: appLocalizations.options,
@@ -631,6 +650,7 @@ class FallbackFilterOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return Column(
       children: generateSection(
         title: appLocalizations.fallbackFilter,

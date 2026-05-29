@@ -6,7 +6,6 @@ import 'package:webdav_client/webdav_client.dart';
 
 class DAVClient {
   late Client client;
-  Completer<bool> pingCompleter = Completer();
   late String fileName;
 
   DAVClient(DAVProps dav) {
@@ -16,10 +15,9 @@ class DAVClient {
     client.setConnectTimeout(8000);
     client.setSendTimeout(60000);
     client.setReceiveTimeout(60000);
-    pingCompleter.complete(_ping());
   }
 
-  Future<bool> _ping() async {
+  Future<bool> ping() async {
     try {
       await client.ping();
       return true;

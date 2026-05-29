@@ -13,9 +13,9 @@ extension IterableExt<E> on Iterable<E> {
 
   Iterable<List<E>> chunks(int size) sync* {
     if (length == 0) return;
-    var iterator = this.iterator;
+    final iterator = this.iterator;
     while (iterator.moveNext()) {
-      var chunk = [iterator.current];
+      final chunk = [iterator.current];
       for (var i = 1; i < size && iterator.moveNext(); i++) {
         chunk.add(iterator.current);
       }
@@ -25,7 +25,7 @@ extension IterableExt<E> on Iterable<E> {
 
   Iterable<E> fill(int length, {required E Function(int count) filler}) sync* {
     int count = 0;
-    for (var item in this) {
+    for (final item in this) {
       yield item;
       count++;
       if (count >= length) return;
@@ -67,6 +67,17 @@ extension ListExt<T> on List<T> {
       }
     }
     return res;
+  }
+
+  List<T> copyAndPut(T data, bool Function(T element) test) {
+    final newList = List<T>.from(this);
+    final index = newList.indexWhere(test);
+    if (index != -1) {
+      newList[index] = data;
+    } else {
+      newList.insert(0, data);
+    }
+    return newList;
   }
 
   List<T> safeSublist(int start, [int? end]) {
@@ -121,7 +132,7 @@ extension DoubleListExt on List<double> {
     int right = length - 1;
 
     while (left <= right) {
-      int mid = left + (right - left) ~/ 2;
+      final int mid = left + (right - left) ~/ 2;
 
       if (mid == length - 1 ||
           (this[mid] <= target && target < this[mid + 1])) {

@@ -1,9 +1,7 @@
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/providers/database.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +52,9 @@ class _StartButtonState extends ConsumerState<StartButton>
     isStart = !isStart;
     updateController();
     debouncer.call(FunctionTag.updateStatus, () {
-      appController.updateStatus(isStart, isInit: !ref.read(initProvider));
+      globalState.container
+          .read(setupActionProvider.notifier)
+          .updateStatus(isStart, isInit: !ref.read(initProvider));
     }, duration: commonDuration);
   }
 
@@ -76,32 +76,41 @@ class _StartButtonState extends ConsumerState<StartButton>
     if (!hasProfile) {
       return Container();
     }
-    return Theme(
-      data: Theme.of(context).copyWith(
-        floatingActionButtonTheme: Theme.of(context).floatingActionButtonTheme
-            .copyWith(
-              sizeConstraints: BoxConstraints(minWidth: 56, maxWidth: 200),
-            ),
-      ),
-      child: AnimatedBuilder(
-        animation: _controller!.view,
-        builder: (_, child) {
-          final textWidth =
-              globalState.measure
-                  .computeTextSize(
-                    Text(
-                      utils.getTimeDifference(DateTime.now()),
-                      style: context.textTheme.titleMedium?.toSoftBold,
-                    ),
-                  )
-                  .width +
-              16;
-          return MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: FloatingActionButton(
+    final suspend = ref.watch(suspendProvider);
+    final theme = Theme.of(context);
+    final appLocalizations = context.appLocalizations;
+    return RepaintBoundary(
+      child: Theme(
+        data: theme.copyWith(
+          floatingActionButtonTheme: theme.floatingActionButtonTheme.copyWith(
+            sizeConstraints: const BoxConstraints(minWidth: 56, maxWidth: 200),
+          ),
+        ),
+        child: AnimatedBuilder(
+          animation: _controller!.view,
+          builder: (_, child) {
+            final textWidth = suspend
+                ? globalState.measure
+                          .computeTextSize(
+                            Text(
+                              appLocalizations.suspended,
+                              style: context.textTheme.titleMedium,
+                            ),
+                          )
+                          .width +
+                      24
+                : globalState.measure
+                          .computeTextSize(
+                            Text(
+                              utils.getTimeDifference(DateTime.now()),
+                              style: context.textTheme.titleMedium?.toSoftBold,
+                            ),
+                          )
+                          .width +
+                      16;
+            return FloatingActionButton(
               clipBehavior: Clip.antiAlias,
               materialTapTargetSize: MaterialTapTargetSize.padded,
-              mouseCursor: SystemMouseCursors.click,
               heroTag: null,
               onPressed: () {
                 handleSwitchStart();
@@ -111,8 +120,11 @@ class _StartButtonState extends ConsumerState<StartButton>
                 children: [
                   Container(
                     height: 56,
-                    width: 56,
-                    alignment: Alignment.center,
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16 - 8 * _animation.value,
+                    ),
+                    alignment: Alignment.centerLeft,
                     child: AnimatedIcon(
                       icon: AnimatedIcons.play_pause,
                       progress: _animation,
@@ -121,21 +133,32 @@ class _StartButtonState extends ConsumerState<StartButton>
                   SizedBox(width: textWidth * _animation.value, child: child!),
                 ],
               ),
-            ),
-          );
-        },
-        child: Consumer(
-          builder: (_, ref, _) {
-            final runTime = ref.watch(runTimeProvider);
-            final text = utils.getTimeText(runTime);
-            return Text(
-              text,
-              maxLines: 1,
-              overflow: TextOverflow.visible,
-              style: Theme.of(context).textTheme.titleMedium?.toSoftBold
-                  .copyWith(color: context.colorScheme.onPrimaryContainer),
             );
           },
+          child: suspend
+              ? Text(
+                  appLocalizations.suspended,
+                  maxLines: 1,
+                  overflow: TextOverflow.visible,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: context.colorScheme.onPrimaryContainer,
+                  ),
+                )
+              : Consumer(
+                  builder: (_, ref, _) {
+                    final runTime = ref.watch(runTimeProvider);
+                    final text = utils.getTimeText(runTime);
+                    return Text(
+                      text,
+                      maxLines: 1,
+                      overflow: TextOverflow.visible,
+                      style: Theme.of(context).textTheme.titleMedium?.toSoftBold
+                          .copyWith(
+                            color: context.colorScheme.onPrimaryContainer,
+                          ),
+                    );
+                  },
+                ),
         ),
       ),
     );
@@ -174,9 +197,7 @@ class LaunchBrowserButton extends ConsumerWidget {
           await probe.delete(recursive: true);
           return path;
         }
-      } catch (_) {
-        // try next candidate
-      }
+      } catch (_) {}
     }
     return home;
   }
@@ -188,7 +209,6 @@ class LaunchBrowserButton extends ConsumerWidget {
     if (!dir.existsSync()) {
       await dir.create(recursive: true);
     }
-    // Write a marker file so users can quickly verify the folder location.
     final markerFile = File(
       '${dir.path}${Platform.pathSeparator}flclash-profile.txt',
     );
@@ -204,10 +224,9 @@ class LaunchBrowserButton extends ConsumerWidget {
     if (ref.read(isStartProvider)) {
       return;
     }
-    await appController.updateStatus(
-      true,
-      isInit: !ref.read(initProvider),
-    );
+    await ref
+        .read(setupActionProvider.notifier)
+        .updateStatus(true, isInit: !ref.read(initProvider));
     if (!ref.read(isStartProvider)) {
       throw 'FlClash failed to start, please check profile and core status.';
     }
@@ -235,11 +254,8 @@ class LaunchBrowserButton extends ConsumerWidget {
             homeUrl,
           ]);
           return;
-        } catch (_) {
-          // try next command
-        }
+        } catch (_) {}
       }
-      // Fallback to command-in-shell style for unusual installations.
       await Process.start('cmd', [
         '/c',
         'start',
@@ -281,9 +297,7 @@ class LaunchBrowserButton extends ConsumerWidget {
             homeUrl,
           ]);
           return;
-        } catch (_) {
-          // try next command
-        }
+        } catch (_) {}
       }
       throw 'Chrome is not found on this Linux system.';
     }
@@ -294,6 +308,7 @@ class LaunchBrowserButton extends ConsumerWidget {
     if (system.isAndroid) {
       return const SizedBox.shrink();
     }
+    final appLocalizations = context.appLocalizations;
     final hasProfile = ref.watch(
       profilesProvider.select((state) => state.isNotEmpty),
     );
@@ -318,7 +333,7 @@ class LaunchBrowserButton extends ConsumerWidget {
           clipBehavior: Clip.antiAlias,
           materialTapTargetSize: MaterialTapTargetSize.padded,
           mouseCursor: SystemMouseCursors.click,
-          heroTag: null,
+          heroTag: 'launch-browser',
           tooltip: appLocalizations.launchBrowser,
           onPressed: () async {
             try {
@@ -328,7 +343,9 @@ class LaunchBrowserButton extends ConsumerWidget {
               final userDataDir = await _ensureBrowserUserDataDir();
               await _launchWithProxy(port, userDataDir);
             } catch (e) {
-              globalState.showNotifier('${appLocalizations.launchBrowserFailed}: $e');
+              globalState.showNotifier(
+                '${appLocalizations.launchBrowserFailed}: $e',
+              );
             }
           },
           child: const SizedBox(

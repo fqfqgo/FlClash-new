@@ -102,18 +102,10 @@ func handleGetProxies() ProxiesData {
 
 	nameList := config.GetProxyNameList()
 
-	proxies := make(map[string]constant.Proxy)
-
-	for name, proxy := range tunnel.Proxies() {
-		proxies[name] = proxy
-	}
-	for _, p := range tunnel.Providers() {
-		for _, proxy := range p.Proxies() {
-			proxies[proxy.Name()] = proxy
-		}
-	}
+	proxies := tunnel.AllProxies()
 
 	hasGlobal := false
+
 	allNames := make([]string, 0, len(nameList)+1)
 
 	for _, name := range nameList {
@@ -156,7 +148,7 @@ func handleChangeProxy(data string, fn func(string string)) {
 		}
 		groupName := *params.GroupName
 		proxyName := *params.ProxyName
-		proxies := tunnel.ProxiesWithProviders()
+		proxies := tunnel.AllProxies()
 		group, ok := proxies[groupName]
 		if !ok {
 			fn("Not found group")
@@ -191,7 +183,7 @@ func handleGetTraffic(onlyStatisticsProxy bool) string {
 	}
 	data, err := json.Marshal(traffic)
 	if err != nil {
-		log.Errorln("Error: %s", err)
+		logError("Error: %s", err)
 		return ""
 	}
 	return string(data)
@@ -205,7 +197,7 @@ func handleGetTotalTraffic(onlyStatisticsProxy bool) string {
 	}
 	data, err := json.Marshal(traffic)
 	if err != nil {
-		log.Errorln("Error: %s", err)
+		logError("Error: %s", err)
 		return ""
 	}
 	return string(data)
@@ -233,7 +225,7 @@ func handleAsyncTestDelay(paramsString string, fn func(string)) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(params.Timeout))
 		defer cancel()
 
-		proxies := tunnel.ProxiesWithProviders()
+		proxies := tunnel.AllProxies()
 		proxy := proxies[params.ProxyName]
 
 		delayData := &Delay{
@@ -253,7 +245,6 @@ func handleAsyncTestDelay(paramsString string, fn func(string)) {
 			testUrl = params.TestUrl
 		}
 		delayData.Url = testUrl
-
 		delay, err := proxy.URLTest(ctx, testUrl, expectedStatus)
 		if err != nil || delay == 0 {
 			delayData.Value = -1
@@ -275,7 +266,7 @@ func handleGetConnections() string {
 	snapshot := statistic.DefaultManager.Snapshot()
 	data, err := json.Marshal(snapshot)
 	if err != nil {
-		log.Errorln("Error: %s", err)
+		logError("Error: %s", err)
 		return ""
 	}
 	return string(data)
@@ -538,7 +529,7 @@ func handleSetupConfig(bytes []byte) string {
 	var params = defaultSetupParams()
 	err := UnmarshalJson(bytes, params)
 	if err != nil {
-		log.Errorln("unmarshalRawConfig error %v", err)
+		logError("unmarshalRawConfig error %v", err)
 		_ = applyConfig(defaultSetupParams())
 		return err.Error()
 	}

@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/about.dart';
 import 'package:fl_clash/views/access.dart';
 import 'package:fl_clash/views/application_setting.dart';
@@ -57,9 +57,9 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     return generateSection(
       title: context.appLocalizations.other,
       items: [
-        _DisclaimerItem(),
-        if (enableDeveloperMode) _DeveloperItem(),
-        _InfoItem(),
+        const _DisclaimerItem(),
+        if (enableDeveloperMode) const _DeveloperItem(),
+        const _InfoItem(),
       ],
     );
   }
@@ -121,8 +121,8 @@ class _ToolViewState extends ConsumerState<ToolsView> {
 class _LocaleItem extends ConsumerWidget {
   const _LocaleItem();
 
-  String _getLocaleString(Locale? locale) {
-    if (locale == null) return appLocalizations.defaultText;
+  String _getLocaleString(BuildContext context, Locale? locale) {
+    if (locale == null) return context.appLocalizations.defaultText;
     return Intl.message(locale.toString());
   }
 
@@ -145,7 +145,7 @@ class _LocaleItem extends ConsumerWidget {
               .read(appSettingProvider.notifier)
               .update((state) => state.copyWith(locale: locale?.toString()));
         },
-        textBuilder: (locale) => _getLocaleString(locale),
+        textBuilder: (locale) => _getLocaleString(context, locale),
         value: currentLocale,
       ),
     );
@@ -161,7 +161,7 @@ class _ThemeItem extends StatelessWidget {
       leading: const Icon(Icons.style),
       title: Text(context.appLocalizations.theme),
       subtitle: Text(context.appLocalizations.themeDesc),
-      delegate: OpenDelegate(widget: const ThemeView()),
+      delegate: const OpenDelegate(widget: ThemeView()),
     );
   }
 }
@@ -175,7 +175,7 @@ class _BackupItem extends StatelessWidget {
       leading: const Icon(Icons.cloud_sync),
       title: Text(context.appLocalizations.backupAndRestore),
       subtitle: Text(context.appLocalizations.backupAndRestoreDesc),
-      delegate: OpenDelegate(widget: const BackupAndRestore()),
+      delegate: const OpenDelegate(widget: BackupAndRestore()),
     );
   }
 }
@@ -189,7 +189,7 @@ class _HotkeyItem extends StatelessWidget {
       leading: const Icon(Icons.keyboard),
       title: Text(context.appLocalizations.hotkeyManagement),
       subtitle: Text(context.appLocalizations.hotkeyManagementDesc),
-      delegate: OpenDelegate(widget: const HotKeyView()),
+      delegate: const OpenDelegate(widget: HotKeyView()),
     );
   }
 }
@@ -222,7 +222,7 @@ class _AccessItem extends StatelessWidget {
       leading: const Icon(Icons.view_list),
       title: Text(context.appLocalizations.accessControl),
       subtitle: Text(context.appLocalizations.accessControlDesc),
-      delegate: OpenDelegate(widget: const AccessView()),
+      delegate: const OpenDelegate(widget: AccessView()),
     );
   }
 }
@@ -236,7 +236,7 @@ class _ConfigItem extends StatelessWidget {
       leading: const Icon(Icons.edit),
       title: Text(context.appLocalizations.basicConfig),
       subtitle: Text(context.appLocalizations.basicConfigDesc),
-      delegate: OpenDelegate(widget: const ConfigView()),
+      delegate: const OpenDelegate(widget: ConfigView()),
     );
   }
 }
@@ -250,7 +250,7 @@ class _AdvancedConfigItem extends StatelessWidget {
       leading: const Icon(Icons.build),
       title: Text(context.appLocalizations.advancedConfig),
       subtitle: Text(context.appLocalizations.advancedConfigDesc),
-      delegate: OpenDelegate(widget: const AdvancedConfigView()),
+      delegate: const OpenDelegate(widget: AdvancedConfigView()),
     );
   }
 }
@@ -264,23 +264,23 @@ class _SettingItem extends StatelessWidget {
       leading: const Icon(Icons.settings),
       title: Text(context.appLocalizations.application),
       subtitle: Text(context.appLocalizations.applicationDesc),
-      delegate: OpenDelegate(widget: const ApplicationSettingView()),
+      delegate: const OpenDelegate(widget: ApplicationSettingView()),
     );
   }
 }
 
-class _DisclaimerItem extends StatelessWidget {
+class _DisclaimerItem extends ConsumerWidget {
   const _DisclaimerItem();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     return ListItem(
       leading: const Icon(Icons.gavel),
       title: Text(context.appLocalizations.disclaimer),
       onTap: () async {
-        final isDisclaimerAccepted = await appController.showDisclaimer();
+        final isDisclaimerAccepted = await globalState.showDisclaimer();
         if (!isDisclaimerAccepted) {
-          appController.handleExit();
+          await ref.read(systemActionProvider.notifier).handleExit();
         }
       },
     );
@@ -295,7 +295,7 @@ class _InfoItem extends StatelessWidget {
     return ListItem.open(
       leading: const Icon(Icons.info),
       title: Text(context.appLocalizations.about),
-      delegate: OpenDelegate(widget: const AboutView()),
+      delegate: const OpenDelegate(widget: AboutView()),
     );
   }
 }
@@ -308,7 +308,7 @@ class _DeveloperItem extends StatelessWidget {
     return ListItem.open(
       leading: const Icon(Icons.developer_board),
       title: Text(context.appLocalizations.developerMode),
-      delegate: OpenDelegate(widget: const DeveloperView()),
+      delegate: const OpenDelegate(widget: DeveloperView()),
     );
   }
 }

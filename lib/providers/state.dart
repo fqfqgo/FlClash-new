@@ -1,5 +1,7 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/core/controller.dart';
+import 'package:fl_clash/database/database.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/state.dart';
@@ -99,6 +101,7 @@ UpdateParams updateParams(Ref ref) {
 
 @riverpod
 ProxyState proxyState(Ref ref) {
+  final suspend = ref.watch(suspendProvider);
   final isStart = ref.watch(runTimeProvider.select((state) => state != null));
   final vm2 = ref.watch(
     networkSettingProvider.select(
@@ -109,7 +112,7 @@ ProxyState proxyState(Ref ref) {
     patchClashConfigProvider.select((state) => state.mixedPort),
   );
   return ProxyState(
-    isStart: isStart,
+    isStart: suspend ? false : isStart,
     systemProxy: vm2.a,
     bassDomain: vm2.b,
     port: mixedPort,
@@ -160,7 +163,7 @@ TrayTitleState trayTitleState(Ref ref) {
     return const TrayTitleState(showTrayTitle: false, traffic: Traffic());
   }
   final traffic = ref.watch(
-    trafficsProvider.select((state) => state.list.safeLast(Traffic())),
+    trafficsProvider.select((state) => state.list.safeLast(const Traffic())),
   );
   return TrayTitleState(showTrayTitle: showTrayTitle, traffic: traffic);
 }
@@ -271,7 +274,7 @@ ProxiesListState proxiesListState(Ref ref) {
     proxiesStyleSettingProvider.select((state) => state.cardType),
   );
 
-  final columns = ref.watch(getProxiesColumnsProvider);
+  final columns = ref.watch(proxiesColumnsProvider);
   return ProxiesListState(
     groups: currentGroups.value,
     currentUnfoldSet: currentUnfoldSet,
@@ -290,7 +293,7 @@ ProxiesTabState proxiesTabState(Ref ref) {
   final cardType = ref.watch(
     proxiesStyleSettingProvider.select((state) => state.cardType),
   );
-  final columns = ref.watch(getProxiesColumnsProvider);
+  final columns = ref.watch(proxiesColumnsProvider);
   return ProxiesTabState(
     groups: currentGroups.value,
     currentGroupName: currentGroupName,
@@ -329,7 +332,7 @@ ProxyGroupSelectorState proxyGroupSelectorState(
     ),
   );
   final sortNum = ref.watch(sortNumProvider);
-  final columns = ref.watch(getProxiesColumnsProvider);
+  final columns = ref.watch(proxiesColumnsProvider);
   final lowQuery = query.toLowerCase();
   final proxies =
       group?.all.where((item) {
@@ -362,19 +365,25 @@ PackageListSelectorState packageListSelectorState(Ref ref) {
 @riverpod
 MoreToolsSelectorState moreToolsSelectorState(Ref ref) {
   final viewMode = ref.watch(viewModeProvider);
-  final navigationItems = ref.watch(
-    navigationItemsStateProvider.select((state) {
-      return state.value.where((element) {
-        final isMore = element.modes.contains(NavigationItemMode.more);
-        final isDesktop = element.modes.contains(NavigationItemMode.desktop);
-        if (isMore && !isDesktop) return true;
-        if (viewMode != ViewMode.mobile || !isMore) {
-          return false;
-        }
-        return true;
-      }).toList();
-    }),
-  );
+  final navigationItems = ref
+      .watch(
+        navigationItemsStateProvider.select((state) {
+          return VM(
+            state.value.where((element) {
+              final isMore = element.modes.contains(NavigationItemMode.more);
+              final isDesktop = element.modes.contains(
+                NavigationItemMode.desktop,
+              );
+              if (isMore && !isDesktop) return true;
+              if (viewMode != ViewMode.mobile || !isMore) {
+                return false;
+              }
+              return true;
+            }).toList(),
+          );
+        }),
+      )
+      .a;
 
   return MoreToolsSelectorState(navigationItems: navigationItems);
 }
@@ -403,18 +412,16 @@ String realTestUrl(Ref ref, [String? testUrl]) {
 }
 
 @riverpod
-int? getDelay(Ref ref, {required String proxyName, String? testUrl}) {
+int? delay(Ref ref, {required String proxyName, String? testUrl}) {
   final currentTestUrl = ref.watch(realTestUrlProvider(testUrl));
   final proxyState = ref.watch(realSelectedProxyStateProvider(proxyName));
-  final delay = ref.watch(
-    delayDataSourceProvider.select((state) {
-      final delayMap =
-          state[proxyState.testUrl.takeFirstValid([currentTestUrl])];
-      return delayMap?[proxyState.proxyName];
-    }),
+  final effectiveTestUrl = proxyState.testUrl.takeFirstValid([currentTestUrl]);
+  final effectiveProxyName = proxyState.proxyName;
+  return ref.watch(
+    delayDataSourceProvider.select(
+      (state) => state[effectiveTestUrl]?[effectiveProxyName],
+    ),
   );
-
-  return delay;
 }
 
 @riverpod
@@ -452,7 +459,7 @@ Profile? currentProfile(Ref ref) {
 }
 
 @riverpod
-int getProxiesColumns(Ref ref) {
+int proxiesColumns(Ref ref) {
   final contentWidth = ref.watch(contentWidthProvider);
   final proxiesLayout = ref.watch(
     proxiesStyleSettingProvider.select((state) => state.layout),
@@ -472,7 +479,7 @@ SelectedProxyState realSelectedProxyState(Ref ref, String proxyName) {
 }
 
 @riverpod
-String? getProxyName(Ref ref, String groupName) {
+String? proxyName(Ref ref, String groupName) {
   final proxyName = ref.watch(
     selectedMapProvider.select((state) => state[groupName]),
   );
@@ -480,8 +487,8 @@ String? getProxyName(Ref ref, String groupName) {
 }
 
 @riverpod
-String? getSelectedProxyName(Ref ref, String groupName) {
-  final proxyName = ref.watch(getProxyNameProvider(groupName));
+String? selectedProxyName(Ref ref, String groupName) {
+  final proxyName = ref.watch(proxyNameProvider(groupName));
   final group = ref.watch(
     groupsProvider.select((state) => state.getGroup(groupName)),
   );
@@ -489,7 +496,7 @@ String? getSelectedProxyName(Ref ref, String groupName) {
 }
 
 @riverpod
-String getProxyDesc(Ref ref, Proxy proxy) {
+String proxyDesc(Ref ref, Proxy proxy) {
   final groupTypeNamesList = GroupType.values.map((e) => e.name).toList();
   if (!groupTypeNamesList.contains(proxy.type)) {
     return proxy.type;
@@ -546,12 +553,6 @@ ColorScheme genColorScheme(
     brightness: brightness,
     dynamicSchemeVariant: vm2.b,
   );
-}
-
-@riverpod
-SetupState? currentSetupState(Ref ref) {
-  final profileId = ref.watch(currentProfileIdProvider);
-  return ref.watch(setupStateProvider(profileId)).value;
 }
 
 @riverpod
@@ -622,10 +623,10 @@ SharedState sharedState(Ref ref) {
   return SharedState(
     currentProfileName: currentProfileName,
     onlyStatisticsProxy: onlyStatisticsProxy,
-    stopText: appLocalizations.stop,
+    stopText: currentAppLocalizations.stop,
     crashlytics: crashlytics,
-    stopTip: appLocalizations.stopVpn,
-    startTip: appLocalizations.startVpn,
+    stopTip: currentAppLocalizations.stopVpn,
+    startTip: currentAppLocalizations.startVpn,
     setupParams: SetupParams(selectedMap: selectedMap, testUrl: testUrl),
     vpnOptions: VpnOptions(
       enable: vpnSetting.enable,
@@ -670,14 +671,120 @@ OverwriteType overwriteType(Ref ref, int? profileId) {
 }
 
 @riverpod
-Future<Script?> script(Ref ref, int? scriptId) async {
-  final script = await ref.watch(
-    (scriptsProvider.future.select((state) async {
-      final scripts = await state;
-      return scripts.get(scriptId);
-    })),
+Future<ClashConfig> clashConfig(Ref ref, int profileId) async {
+  final configMap = await coreController.getConfig(profileId);
+  final clashConfig = ClashConfig.fromJson(configMap);
+  final Map<String, String> proxyTypeMap = {};
+  for (final proxy in clashConfig.proxies) {
+    proxyTypeMap[proxy.name] = proxy.type;
+  }
+  for (final proxyGroup in clashConfig.proxyGroups) {
+    proxyTypeMap[proxyGroup.name] = proxyGroup.type.value;
+  }
+  return clashConfig.copyWith(proxyTypeMap: proxyTypeMap);
+}
+
+@riverpod
+CustomOverwriteDate customOverwriteDate(Ref ref, int profileId) {
+  final vm3 = ref.watch(
+    clashConfigProvider(profileId).select((state) {
+      return VM3(
+        state.value?.proxies ?? [],
+        state.value?.subRules ?? [],
+        state.value?.proxyProviders ?? [],
+      );
+    }),
   );
-  return script;
+  final proxies = vm3.a;
+  final subRules = vm3.b.toSet();
+  final proxyProviders = vm3.c.toSet();
+  final proxyGroups =
+      ref
+          .watch(
+            proxyGroupsProvider(profileId).select((state) {
+              return VM(state.value);
+            }),
+          )
+          .a ??
+      [];
+  final ruleTargets = {
+    ...RuleTarget.baseTargets,
+    ...proxies.map((item) => item.name),
+    ...proxyGroups.map((item) => item.name),
+  };
+  return CustomOverwriteDate(
+    proxyProviders: proxyProviders,
+    proxies: proxies,
+    proxyGroups: proxyGroups,
+    ruleTargets: ruleTargets,
+    subRules: subRules,
+  );
+}
+
+@riverpod
+bool customOverwriteTargetIsValid(Ref ref, int profileId, String? target) {
+  final valid = ref.watch(
+    customOverwriteDateProvider(
+      profileId,
+    ).select((state) => state.ruleTargets.contains(target)),
+  );
+  return valid;
+}
+
+@riverpod
+bool customOverwriteProxyProviderIsValid(
+  Ref ref,
+  int profileId,
+  String? providerName,
+) {
+  final valid = ref.watch(
+    customOverwriteDateProvider(
+      profileId,
+    ).select((state) => state.proxyProviders.contains(providerName)),
+  );
+  return valid;
+}
+
+@riverpod
+bool customOverwriteUseIsValid(Ref ref, int profileId, List<String> use) {
+  final valid = ref.watch(
+    customOverwriteDateProvider(
+      profileId,
+    ).select((state) => state.proxyProviders.containsAll(use)),
+  );
+  return valid;
+}
+
+@riverpod
+bool customOverwriteProxiesIsValid(
+  Ref ref,
+  int profileId,
+  List<String> proxies,
+) {
+  final valid = ref.watch(
+    customOverwriteDateProvider(
+      profileId,
+    ).select((state) => state.ruleTargets.containsAll(proxies)),
+  );
+  return valid;
+}
+
+@riverpod
+bool customOverwriteGroupIsValid(
+  Ref ref,
+  int profileId,
+  ProxyGroup proxyGroup,
+) {
+  final proxies = proxyGroup.proxies ?? [];
+  final use = proxyGroup.use ?? [];
+  final valid = ref.watch(
+    customOverwriteDateProvider(profileId).select(
+      (state) =>
+          state.ruleTargets.containsAll(proxies) &&
+          state.proxyProviders.containsAll(use),
+    ),
+  );
+  return valid;
 }
 
 @riverpod
@@ -687,12 +794,26 @@ Future<SetupState> setupState(Ref ref, int? profileId) async {
   final profileLastUpdateDate = profile?.lastUpdateDate?.millisecondsSinceEpoch;
   final overwriteType = profile?.overwriteType ?? OverwriteType.standard;
   final dns = ref.watch(patchClashConfigProvider.select((state) => state.dns));
-  final script = await ref.watch(scriptProvider(scriptId).future);
   final overrideDns = ref.watch(overrideDnsProvider);
-  final List<Rule> addedRules = profileId != null
-      ? await ref.watch(addedRuleStreamProvider(profileId).future)
-      : [];
+  List<ProxyGroup> proxyGroups = [];
+  List<Rule> rules = [];
+  List<Rule> addedRules = [];
+  Script? script;
+  if (profileId != null) {
+    if (overwriteType == OverwriteType.standard) {
+      addedRules = await database.rulesDao.queryAddedRules(profileId).get();
+    } else if (overwriteType == OverwriteType.script) {
+      script = scriptId == null
+          ? null
+          : await database.scriptsDao.get(scriptId).getSingleOrNull();
+    } else {
+      rules = await database.rulesDao.queryProfileCustomRules(profileId).get();
+      proxyGroups = await database.proxyGroupsDao.query(profileId).get();
+    }
+  }
   return SetupState(
+    rules: rules,
+    proxyGroups: proxyGroups,
     profileId: profileId,
     profileLastUpdateDate: profileLastUpdateDate,
     overwriteType: overwriteType,
@@ -707,5 +828,29 @@ Future<SetupState> setupState(Ref ref, int? profileId) async {
 class AccessControlState extends _$AccessControlState
     with AutoDisposeNotifierMixin {
   @override
-  AccessControlProps build() => AccessControlProps();
+  AccessControlProps build() => const AccessControlProps();
+}
+
+@Riverpod(name: 'proxyGroupProvider')
+class ProxyGroupProvider extends _$ProxyGroupProvider
+    with AutoDisposeNotifierMixin {
+  @override
+  ProxyGroup build() {
+    throw 'Initialization proxyGroupProvider error';
+  }
+}
+
+@Riverpod(name: 'ruleProvider')
+class RuleProvider extends _$RuleProvider with AutoDisposeNotifierMixin {
+  @override
+  Rule build() {
+    return throw 'Initialization RuleProvider error';
+  }
+}
+
+@riverpod
+bool suspend(Ref ref) {
+  final currentSSID = ref.watch(currentSSIDProvider);
+  final excludeSSIDs = ref.watch(excludeSSIDsProvider);
+  return excludeSSIDs.contains(currentSSID);
 }

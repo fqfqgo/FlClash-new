@@ -1,7 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/widgets/inherited.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -301,9 +303,9 @@ class ListItem<T> extends StatelessWidget {
         // openColor: context.colorScheme.surface,
         // closedElevation: 0,
         // openElevation: 0,
-        closedBuilder: (_, action) {
-          openAction() async {
-            final isMobile = appController.isMobile;
+        closedBuilder: (context, action) {
+          Future<void> openAction() async {
+            final isMobile = globalState.container.read(isMobileViewProvider);
             if (!isMobile || kDebugMode) {
               final res = await showExtend(
                 context,
@@ -312,7 +314,7 @@ class ListItem<T> extends StatelessWidget {
                   maxWidth: openDelegate.maxWidth,
                   forceFull: openDelegate.forceFull,
                 ),
-                builder: (_, type) {
+                builder: (_) {
                   return child;
                 },
               );
@@ -344,7 +346,7 @@ class ListItem<T> extends StatelessWidget {
               blur: nextDelegate.blur,
               maxWidth: nextDelegate.maxWidth,
             ),
-            builder: (_, type) {
+            builder: (_) {
               return child;
             },
           );
@@ -454,6 +456,7 @@ class ListHeader extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        spacing: 36,
         children: [
           Expanded(
             child: Column(
@@ -540,6 +543,27 @@ Widget generateSectionV2({
   );
 }
 
+Widget generateSectionV3({
+  String? title,
+  required Iterable<Widget> items,
+  List<Widget>? actions,
+}) {
+  final genItems = items.mapIndexed<Widget>((index, item) {
+    final position = ItemPosition.get(index, items.length);
+    if (position != ItemPosition.middle) {
+      return ItemPositionProvider(position: position, child: item);
+    }
+    return item;
+  });
+  return Column(
+    children: [
+      if (items.isNotEmpty && title != null)
+        ListHeader(title: title, actions: actions),
+      Column(children: [...genItems]),
+    ],
+  );
+}
+
 List<Widget> generateInfoSection({
   required Info info,
   required Iterable<Widget> items,
@@ -584,10 +608,9 @@ class CommonSelectedListItem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
         color: Colors.transparent,
         child: CommonCard(
-          padding: EdgeInsets.zero,
           radius: 18,
           type: CommonCardType.filled,
           isSelected: isSelected,
@@ -621,126 +644,140 @@ class CommonSelectedListItem extends StatelessWidget {
   }
 }
 
-class CommonInputListItem extends StatelessWidget {
-  final bool isDecorator;
-  final bool isFirst;
-  final bool isLast;
-  final Widget? title;
+class DecorationListItem extends StatelessWidget {
+  final Widget title;
   final Widget? subtitle;
   final Widget? leading;
   final Widget? trailing;
   final bool? isSelected;
+  final double? horizontalTitleGap;
+  final EdgeInsetsGeometry? contentPadding;
   final VoidCallback? onPressed;
+  final double? minVerticalPadding;
+  final bool invalid;
 
-  const CommonInputListItem({
+  const DecorationListItem({
     super.key,
-    this.isDecorator = false,
-    this.isFirst = false,
-    this.isLast = false,
-    this.title,
+    this.contentPadding,
+    required this.title,
     this.leading,
     this.trailing,
     this.subtitle,
     this.isSelected,
     this.onPressed,
+    this.horizontalTitleGap,
+    this.minVerticalPadding,
+    this.invalid = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      decoration: ShapeDecoration(
-        shape: isDecorator == true
-            ? LinearBorder.none
-            : RoundedSuperellipseBorder(
-                borderRadius: BorderRadius.vertical(
-                  top: isFirst ? Radius.circular(24) : Radius.zero,
-                  bottom: isLast ? Radius.circular(24) : Radius.zero,
-                ),
+    final proxyDecorator =
+        ProxyDecoratorProvider.of(context)?.isProxyDecorator ?? false;
+    final position = ItemPositionProvider.of(context)?.position;
+    final isStart = [
+      ItemPosition.start,
+      ItemPosition.startAndEnd,
+    ].contains(position);
+    final isEnd = [
+      ItemPosition.end,
+      ItemPosition.startAndEnd,
+    ].contains(position);
+    final borderRadius = BorderRadius.vertical(
+      top: isStart ? const Radius.circular(24) : Radius.zero,
+      bottom: isEnd ? const Radius.circular(24) : Radius.zero,
+    );
+    return CommonCard(
+      shape: proxyDecorator == true
+          ? LinearBorder.none
+          : RoundedSuperellipseBorder(borderRadius: borderRadius),
+      isError: invalid,
+      isSelected: isSelected,
+      padding: EdgeInsets.zero,
+      type: CommonCardType.filled,
+      onPressed: proxyDecorator ? null : onPressed,
+      child: LayoutBuilder(
+        builder: (_, constraints) {
+          final isInfinite = constraints.maxHeight >= double.infinity;
+          final tile = ListTile(
+            leading: leading,
+            contentPadding:
+                contentPadding ?? const EdgeInsets.only(right: 16, left: 16),
+            title: title,
+            subtitle: subtitle,
+            minVerticalPadding: minVerticalPadding ?? 6,
+            minTileHeight: 54,
+            horizontalTitleGap: horizontalTitleGap,
+            trailing: trailing,
+          );
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                fit: isInfinite ? FlexFit.loose : FlexFit.tight,
+                child: tile,
               ),
-      ),
-      child: CommonCard(
-        radius: 0,
-        isSelected: isSelected,
-        type: CommonCardType.filled,
-        onPressed: onPressed,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: ListTile(
-                leading: leading,
-                contentPadding: const EdgeInsets.only(right: 16, left: 16),
-                title: title,
-                subtitle: subtitle,
-                minVerticalPadding: 14,
-                trailing: trailing,
-              ),
-            ),
-            if (isDecorator != true && !isLast)
-              Divider(height: 0, indent: 14, endIndent: 14),
-          ],
-        ),
+              if (!invalid && proxyDecorator != true && !isEnd)
+                const Divider(height: 0, indent: 14, endIndent: 14),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class CommonSelectedInputListItem extends StatelessWidget {
+class SelectedDecorationListItem extends StatelessWidget {
   final bool isSelected;
   final bool isEditing;
   final Widget title;
   final Widget? subtitle;
   final VoidCallback onSelected;
   final VoidCallback onPressed;
-  final bool isFirst;
-  final bool isLast;
-  final bool isDecorator;
+  final double? horizontalTitleGap;
   final Widget? leading;
+  final bool invalid;
+  final double? minVerticalPadding;
 
-  const CommonSelectedInputListItem({
+  const SelectedDecorationListItem({
     super.key,
     required this.isSelected,
     required this.onSelected,
+    this.horizontalTitleGap,
     this.isEditing = false,
+    this.invalid = false,
     required this.title,
     required this.onPressed,
-    this.isFirst = false,
-    this.isLast = false,
-    this.isDecorator = false,
+    this.minVerticalPadding,
     this.subtitle,
     this.leading,
   });
 
   @override
   Widget build(BuildContext context) {
-    return CommonInputListItem(
+    return DecorationListItem(
       title: title,
-      isDecorator: isDecorator,
+      minVerticalPadding: minVerticalPadding,
+      contentPadding: const EdgeInsets.only(left: 16, right: 0),
       isSelected: isSelected,
-      isFirst: isFirst,
-      isLast: isLast,
+      invalid: invalid,
       leading: leading,
-      onPressed: isDecorator
-          ? null
-          : () {
-              if (isEditing) {
-                onSelected();
-                return;
-              }
-              onPressed();
-            },
+      horizontalTitleGap: horizontalTitleGap,
+      onPressed: () {
+        if (isEditing) {
+          onSelected();
+          return;
+        }
+        onPressed();
+      },
       subtitle: subtitle,
-      trailing: SizedBox(
-        width: 24,
-        height: 24,
-        child: CommonCheckBox(
-          value: isSelected,
-          isCircle: true,
-          onChanged: (_) {
-            onSelected();
-          },
-        ),
+      trailing: CommonCheckBox(
+        value: isSelected,
+        isCircle: true,
+        onChanged: (_) {
+          onSelected();
+        },
       ),
     );
   }

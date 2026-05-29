@@ -1,12 +1,33 @@
+import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/manager/manager.dart';
 import 'package:fl_clash/models/state.dart';
+import 'package:fl_clash/widgets/inherited.dart';
 import 'package:fl_clash/widgets/scaffold.dart';
+import 'package:fl_clash/widgets/sheet.dart';
 import 'package:flutter/material.dart';
 
 extension BuildContextExtension on BuildContext {
   CommonScaffoldState? get commonScaffoldState {
     return findAncestorStateOfType<CommonScaffoldState>();
+  }
+
+  void safeNestedPop<T extends Object?>([T? result]) {
+    final nestedPop = SheetProvider.of(this)?.nestedNavigatorPop;
+    if (nestedPop != null) {
+      return nestedPop(result);
+    } else {
+      return Navigator.of(this).pop(result);
+    }
+  }
+
+  double get sheetTopPadding {
+    final sheetType = SheetProvider.of(this)!.type;
+    if (sheetType == SheetType.bottomSheet) {
+      return sheetAppBarHeight;
+    } else {
+      return 10;
+    }
   }
 
   void showNotifier(String text, {MessageActionState? actionState}) {
@@ -52,7 +73,7 @@ extension BuildContextExtension on BuildContext {
   T? findLastStateOfType<T extends State>() {
     T? state;
 
-    visitor(Element element) {
+    void visitor(Element element) {
       if (!element.mounted) {
         return;
       }

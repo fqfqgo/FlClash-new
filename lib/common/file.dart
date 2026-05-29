@@ -17,14 +17,14 @@ extension FileExt on File {
     if (!await exists()) {
       await create(recursive: true);
     }
-    return await writeAsString(str);
+    return writeAsString(str);
   }
 
   Future<File> safeWriteAsBytes(List<int> bytes) async {
     if (!await exists()) {
       await create(recursive: true);
     }
-    return await writeAsBytes(bytes);
+    return writeAsBytes(bytes);
   }
 }
 

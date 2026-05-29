@@ -1,5 +1,5 @@
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
+import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +21,7 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
     trayManager.addListener(this);
     ref.listenManual(trayStateProvider, (prev, next) {
       if (prev != next) {
-        appController.updateTray();
+        ref.read(systemActionProvider.notifier).updateTray();
       }
     });
     if (system.isMacOS) {
@@ -54,12 +54,12 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
   }
 
   @override
-  onTrayIconMouseDown() {
+  void onTrayIconMouseDown() {
     window?.show();
   }
 
   @override
-  dispose() {
+  void dispose() {
     trayManager.removeListener(this);
     super.dispose();
   }

@@ -113,6 +113,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    children = widget.children;
     _childrenNotifier.addListener(() {
       children = _childrenNotifier.value;
       if (widget.onUpdate != null) {
@@ -126,7 +127,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
 
     _shakeController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 120),
+      duration: const Duration(milliseconds: 120),
     );
 
     _shakeAnimation = Tween<double>(begin: -0.012, end: 0.012).animate(
@@ -164,7 +165,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
   }
 
   Future _transform() async {
-    List<Offset> layoutOffsets = [Offset(_containerSize.width, 0)];
+    final List<Offset> layoutOffsets = [Offset(_containerSize.width, 0)];
     final List<Offset> nextOffsets = [];
 
     for (final index in _tempIndexList) {
@@ -230,7 +231,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
             Tween<double>(
               begin: 0.0,
               end: 1,
-            ).chain(CurveTween(curve: Easing.emphasizedAccelerate)),
+            ).chain(CurveTween(curve: Curves.fastOutSlowIn)),
           ),
         ),
       );
@@ -351,7 +352,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
 
   Offset _getNextOffset(List<Offset> offsets, Size size) {
     final length = offsets.length;
-    Offset nextOffset = Offset(0, double.infinity);
+    Offset nextOffset = const Offset(0, double.infinity);
     for (int i = 0; i < length; i++) {
       final offset = offsets[i];
       if (offset.dy.moreOrEqual(nextOffset.dy)) {
@@ -504,7 +505,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
 
   Widget _builderItem(int index) {
     final girdItem = _childrenNotifier.value[index];
-    final child = RepaintBoundary(child: girdItem.child);
+    final child = girdItem.child;
     return GridItem(
       mainAxisCellCount: girdItem.mainAxisCellCount,
       crossAxisCellCount: girdItem.crossAxisCellCount,
@@ -684,9 +685,9 @@ class _DeletableContainerState extends State<_DeletableContainer>
                 height: 24,
                 child: IconButton.filled(
                   iconSize: 20,
-                  padding: EdgeInsets.all(2),
+                  padding: const EdgeInsets.all(2),
                   onPressed: _handleDel,
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                 ),
               ),
             ),

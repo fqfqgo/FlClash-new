@@ -46,7 +46,7 @@ class Migration {
   }
 
   Future<MigrationData> _oldToNow(Map<String, Object?> configMap) async {
-    return await oldToNowTask(configMap);
+    return oldToNowTask(configMap);
   }
 }
 

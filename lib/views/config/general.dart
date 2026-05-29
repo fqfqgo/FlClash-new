@@ -12,6 +12,7 @@ class LogLevelItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final logLevel = ref.watch(
       patchClashConfigProvider.select((state) => state.logLevel),
     );
@@ -42,6 +43,7 @@ class UaItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final globalUa = ref.watch(
       patchClashConfigProvider.select((state) => state.globalUa),
     );
@@ -69,6 +71,7 @@ class KeepAliveIntervalItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final keepAliveInterval = ref.watch(
       patchClashConfigProvider.select((state) => state.keepAliveInterval),
     );
@@ -110,6 +113,7 @@ class TestUrlItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final testUrl = ref.watch(
       appSettingProvider.select((state) => state.testUrl),
     );
@@ -147,12 +151,13 @@ class PortItem extends ConsumerWidget {
   const PortItem({super.key});
 
   Future<void> handleShowPortDialog() async {
-    await globalState.showCommonDialog(child: _PortDialog());
+    await globalState.showCommonDialog(child: const _PortDialog());
     // inputDelegate.onChanged(value);
   }
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final mixedPort = ref.watch(
       patchClashConfigProvider.select((state) => state.mixedPort),
     );
@@ -201,6 +206,7 @@ class HostsItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final hosts = ref.watch(
       patchClashConfigProvider.select((state) => state.hosts),
     );
@@ -231,6 +237,7 @@ class Ipv6Item extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final ipv6 = ref.watch(
       patchClashConfigProvider.select((state) => state.ipv6),
     );
@@ -255,6 +262,7 @@ class AppendSystemDNSItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final appendSystemDNS = ref.watch(
       networkSettingProvider.select((state) => state.appendSystemDns),
     );
@@ -279,6 +287,7 @@ class AllowLanItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final allowLan = ref.watch(
       patchClashConfigProvider.select((state) => state.allowLan),
     );
@@ -303,6 +312,7 @@ class UnifiedDelayItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final unifiedDelay = ref.watch(
       patchClashConfigProvider.select((state) => state.unifiedDelay),
     );
@@ -328,6 +338,7 @@ class FindProcessItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final findProcess = ref.watch(
       patchClashConfigProvider.select(
         (state) => state.findProcessMode == FindProcessMode.always,
@@ -361,6 +372,7 @@ class TcpConcurrentItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final tcpConcurrent = ref.watch(
       patchClashConfigProvider.select((state) => state.tcpConcurrent),
     );
@@ -385,6 +397,7 @@ class GeodataLoaderItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final isMemconservative = ref.watch(
       patchClashConfigProvider.select(
         (state) => state.geodataLoader == GeodataLoader.memconservative,
@@ -417,6 +430,7 @@ class ExternalControllerItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final hasExternalController = ref.watch(
       patchClashConfigProvider.select(
         (state) => state.externalController == ExternalControllerStatus.open,
@@ -445,20 +459,20 @@ class ExternalControllerItem extends ConsumerWidget {
 }
 
 final generalItems = <Widget>[
-  LogLevelItem(),
-  UaItem(),
-  if (system.isDesktop) KeepAliveIntervalItem(),
-  TestUrlItem(),
-  PortItem(),
-  HostsItem(),
-  Ipv6Item(),
-  AllowLanItem(),
-  UnifiedDelayItem(),
-  AppendSystemDNSItem(),
-  FindProcessItem(),
-  TcpConcurrentItem(),
-  GeodataLoaderItem(),
-  ExternalControllerItem(),
+  const LogLevelItem(),
+  const UaItem(),
+  if (system.isDesktop) const KeepAliveIntervalItem(),
+  const TestUrlItem(),
+  const PortItem(),
+  const HostsItem(),
+  const Ipv6Item(),
+  const AllowLanItem(),
+  const UnifiedDelayItem(),
+  const AppendSystemDNSItem(),
+  const FindProcessItem(),
+  const TcpConcurrentItem(),
+  const GeodataLoaderItem(),
+  const ExternalControllerItem(),
 ].separated(const Divider(height: 0)).toList();
 
 class _PortDialog extends ConsumerStatefulWidget {
@@ -501,7 +515,7 @@ class _PortDialogState extends ConsumerState<_PortDialog> {
 
   Future<void> _handleReset() async {
     final res = await globalState.showMessage(
-      message: TextSpan(text: appLocalizations.resetTip),
+      message: TextSpan(text: context.appLocalizations.resetTip),
     );
     if (res != true) {
       return;
@@ -556,6 +570,7 @@ class _PortDialogState extends ConsumerState<_PortDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return CommonDialog(
       title: appLocalizations.port,
       actions: [
@@ -586,7 +601,7 @@ class _PortDialogState extends ConsumerState<_PortDialog> {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         key: _formKey,
         child: Padding(
-          padding: EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: 8),
           child: AnimatedSize(
             duration: midDuration,
             curve: Curves.easeOutQuad,

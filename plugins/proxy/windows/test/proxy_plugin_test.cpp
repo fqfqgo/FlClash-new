@@ -2,7 +2,6 @@
 #include <flutter/method_result_functions.h>
 #include <flutter/standard_method_codec.h>
 #include <gtest/gtest.h>
-#include <windows.h>
 
 #include <memory>
 #include <string>
@@ -22,21 +21,32 @@ using flutter::MethodResultFunctions;
 
 }  // namespace
 
-TEST(ProxyPlugin, GetPlatformVersion) {
+TEST(ProxyPlugin, UnknownMethodIsNotImplemented) {
   ProxyPlugin plugin;
-  // Save the reply value from the success callback.
-  std::string result_string;
+  bool not_implemented = false;
   plugin.HandleMethodCall(
-      MethodCall("getPlatformVersion", std::make_unique<EncodableValue>()),
+      MethodCall("unknown", std::make_unique<EncodableValue>()),
       std::make_unique<MethodResultFunctions<>>(
-          [&result_string](const EncodableValue* result) {
-            result_string = std::get<std::string>(*result);
-          },
-          nullptr, nullptr));
+          nullptr, nullptr,
+          [&not_implemented]() { not_implemented = true; }));
 
-  // Since the exact string varies by host, just ensure that it's a string
-  // with the expected format.
-  EXPECT_TRUE(result_string.rfind("Windows ", 0) == 0);
+  EXPECT_TRUE(not_implemented);
+}
+
+TEST(ProxyPlugin, StartProxyRejectsMissingArguments) {
+  ProxyPlugin plugin;
+  std::string error_code;
+  plugin.HandleMethodCall(
+      MethodCall("StartProxy", std::make_unique<EncodableValue>(EncodableMap())),
+      std::make_unique<MethodResultFunctions<>>(
+          nullptr,
+          [&error_code](
+              const std::string& code,
+              const std::string& message,
+              const EncodableValue* details) { error_code = code; },
+          nullptr));
+
+  EXPECT_EQ(error_code, "bad_args");
 }
 
 }  // namespace test

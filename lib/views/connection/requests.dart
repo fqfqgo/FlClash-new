@@ -43,11 +43,11 @@ class _RequestsViewState extends ConsumerState<RequestsView> {
     _requestsStateNotifier.value = _requestsStateNotifier.value.copyWith(
       trackerInfos: _requests,
     );
-    ref.listenManual(requestsProvider.select((state) => state.list), (
+    ref.listenManual(requestsProvider.select((state) => VM(state.list)), (
       prev,
       next,
     ) {
-      _requests = next;
+      _requests = next.a;
       updateRequestsThrottler();
     });
   }
@@ -83,6 +83,7 @@ class _RequestsViewState extends ConsumerState<RequestsView> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return CommonScaffold(
       title: appLocalizations.requests,
       searchState: AppBarSearchState(onSearch: _onSearch),
@@ -148,7 +149,7 @@ class _RequestsViewState extends ConsumerState<RequestsView> {
                 child: SuperListView.builder(
                   reverse: true,
                   shrinkWrap: true,
-                  physics: NextClampingScrollPhysics(),
+                  physics: const NextClampingScrollPhysics(),
                   controller: _scrollController,
                   itemBuilder: (_, index) {
                     return items[index];

@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
-import 'package:flutter/foundation.dart';
 
 mixin CoreInterface {
   Future<bool> init(InitParams params);
@@ -94,15 +93,14 @@ abstract class CoreHandlerInterface with CoreInterface {
       );
       return null;
     }
-    if (kDebugMode && watchExecution) {
-      commonPrint.log('Invoke ${method.name} ${DateTime.now()} $data');
-    }
-
     return await utils.handleWatch(
-      function: () async {
-        return await invoke<T>(method: method, data: data, timeout: timeout);
+      onStart: () {
+        commonPrint.log('Invoke ${method.name} ${DateTime.now()} $data');
       },
-      onWatch: (data, elapsedMilliseconds) {
+      function: () async {
+        return invoke<T>(method: method, data: data, timeout: timeout);
+      },
+      onEnd: (data, elapsedMilliseconds) {
         commonPrint.log('Invoke ${method.name} ${elapsedMilliseconds}ms');
       },
     );
@@ -188,7 +186,7 @@ abstract class CoreHandlerInterface with CoreInterface {
     );
     return data != null
         ? ProxiesData.fromJson(data)
-        : ProxiesData(proxies: {}, all: []);
+        : const ProxiesData(proxies: {}, all: []);
   }
 
   @override
@@ -294,17 +292,17 @@ abstract class CoreHandlerInterface with CoreInterface {
   }
 
   @override
-  resetTraffic() {
+  FutureOr<void> resetTraffic() {
     _invoke(method: ActionMethod.resetTraffic);
   }
 
   @override
-  startLog() {
+  FutureOr<void> startLog() {
     _invoke(method: ActionMethod.startLog);
   }
 
   @override
-  stopLog() {
+  FutureOr<void> stopLog() {
     _invoke<bool>(method: ActionMethod.stopLog);
   }
 
@@ -328,7 +326,7 @@ abstract class CoreHandlerInterface with CoreInterface {
     return await _invoke<String>(
           method: ActionMethod.asyncTestDelay,
           data: json.encode(delayParams),
-          timeout: Duration(seconds: 6),
+          timeout: const Duration(seconds: 6),
         ) ??
         json.encode(Delay(name: proxyName, value: -1, url: url));
   }

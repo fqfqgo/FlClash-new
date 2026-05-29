@@ -1,3 +1,5 @@
+import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/widgets/sheet.dart';
 import 'package:flutter/material.dart';
 
 class CommonScaffoldBackActionProvider extends InheritedWidget {
@@ -38,4 +40,91 @@ class CommonScaffoldFabExtendedProvider extends InheritedWidget {
   @override
   bool updateShouldNotify(CommonScaffoldFabExtendedProvider oldWidget) =>
       isExtended != oldWidget.isExtended;
+}
+
+class ItemPositionProvider extends InheritedWidget {
+  final ItemPosition position;
+
+  const ItemPositionProvider({
+    super.key,
+    required this.position,
+    required super.child,
+  });
+
+  static ItemPositionProvider? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ItemPositionProvider>();
+  }
+
+  @override
+  bool updateShouldNotify(ItemPositionProvider oldWidget) =>
+      position != oldWidget.position;
+}
+
+class ProxyDecoratorProvider extends InheritedWidget {
+  final bool isProxyDecorator;
+
+  const ProxyDecoratorProvider({
+    super.key,
+    required this.isProxyDecorator,
+    required super.child,
+  });
+
+  static ProxyDecoratorProvider? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ProxyDecoratorProvider>();
+  }
+
+  @override
+  bool updateShouldNotify(ProxyDecoratorProvider oldWidget) =>
+      isProxyDecorator != oldWidget.isProxyDecorator;
+}
+
+class SheetProvider<T> extends InheritedWidget {
+  final SheetType type;
+  final void Function([T? result])? nestedNavigatorPop;
+
+  const SheetProvider({
+    super.key,
+    required super.child,
+    required this.type,
+    this.nestedNavigatorPop,
+  });
+
+  SheetProvider copyWith({
+    SheetType? type,
+    void Function([T? result])? nestedNavigatorPop,
+    required Widget child,
+  }) {
+    return SheetProvider<T>(
+      type: type ?? this.type,
+      nestedNavigatorPop: nestedNavigatorPop ?? this.nestedNavigatorPop,
+      child: child,
+    );
+  }
+
+  static SheetProvider? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<SheetProvider>();
+  }
+
+  @override
+  bool updateShouldNotify(SheetProvider oldWidget) =>
+      type != oldWidget.type &&
+      nestedNavigatorPop != oldWidget.nestedNavigatorPop;
+}
+
+class ProfileIdProvider extends InheritedWidget {
+  final int profileId;
+
+  const ProfileIdProvider({
+    super.key,
+    required this.profileId,
+    required super.child,
+  });
+
+  static ProfileIdProvider? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ProfileIdProvider>();
+  }
+
+  @override
+  bool updateShouldNotify(ProfileIdProvider oldWidget) =>
+      profileId != oldWidget.profileId;
 }

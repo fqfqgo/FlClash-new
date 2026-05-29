@@ -89,7 +89,7 @@ class BarChartPainter extends CustomPainter {
 
   Map<String, Rect> getRectMap(List<BarChartData> dataList, Size size) {
     final spacing = size.width * 0.05;
-    final maxBarWidth = 30;
+    const maxBarWidth = 30;
     final barWidth =
         (size.width - spacing * (dataList.length - 1)) / dataList.length;
     final maxValue =
@@ -97,12 +97,12 @@ class BarChartPainter extends CustomPainter {
     final rects = <String, Rect>{};
     for (int i = 0; i < dataList.length; i++) {
       final data = dataList[i];
-      double barHeight = (data.value / maxValue) * size.height;
+      final double barHeight = (data.value / maxValue) * size.height;
 
       final adjustLeft =
           barWidth > maxBarWidth ? (barWidth - maxBarWidth) / 2 : 0;
-      double left = i * (barWidth + spacing) + adjustLeft;
-      double top = size.height - barHeight;
+      final double left = i * (barWidth + spacing) + adjustLeft;
+      final double top = size.height - barHeight;
       rects[data.label] = Rect.fromLTWH(
         left,
         top,

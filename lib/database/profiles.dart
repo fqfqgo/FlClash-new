@@ -59,7 +59,7 @@ class SubscriptionInfoConverter
 class ProfilesDao extends DatabaseAccessor<Database> with _$ProfilesDaoMixin {
   ProfilesDao(super.attachedDatabase);
 
-  Selectable<Profile> all() {
+  Selectable<Profile> query() {
     final stmt = profiles.select();
     stmt.orderBy([
       (t) => OrderingTerm(expression: t.order, nulls: NullsOrder.last),
@@ -89,6 +89,11 @@ class ProfilesDao extends DatabaseAccessor<Database> with _$ProfilesDaoMixin {
     batch.insertAllOnConflictUpdate(profiles, items);
   }
 
+  Selectable<String> fileNames() {
+    final query = profiles.selectOnly()..addColumns([profiles.id]);
+    return query.map((row) => '${row.read(profiles.id)}.yaml');
+  }
+
   void setAllWithBatch(Batch batch, Iterable<Profile> profiles) {
     final List<ProfilesCompanion> items = [];
     final List<int> ids = [];
@@ -98,34 +103,6 @@ class ProfilesDao extends DatabaseAccessor<Database> with _$ProfilesDaoMixin {
     });
 
     this.profiles.setAll(batch, items, deleteFilter: (t) => t.id.isNotIn(ids));
-  }
-}
-
-class StringMapConverter extends TypeConverter<Map<String, String>, String> {
-  const StringMapConverter();
-
-  @override
-  Map<String, String> fromSql(String fromDb) {
-    return Map<String, String>.from(json.decode(fromDb));
-  }
-
-  @override
-  String toSql(Map<String, String> value) {
-    return json.encode(value);
-  }
-}
-
-class StringSetConverter extends TypeConverter<Set<String>, String> {
-  const StringSetConverter();
-
-  @override
-  Set<String> fromSql(String fromDb) {
-    return Set<String>.from(json.decode(fromDb));
-  }
-
-  @override
-  String toSql(Set<String> value) {
-    return json.encode(value.toList());
   }
 }
 

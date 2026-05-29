@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/core/core.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/config.dart';
@@ -37,7 +36,7 @@ class ResourcesView extends StatelessWidget {
     ];
 
     return CommonScaffold(
-      title: appLocalizations.resources,
+      title: context.appLocalizations.resources,
       body: ListView.separated(
         itemBuilder: (_, index) {
           final geoItem = geoItems[index];
@@ -104,14 +103,15 @@ class _GeoDataListItemState extends State<GeoDataListItem> {
 
   Widget _buildSubtitle() {
     return Consumer(
-      builder: (_, ref, _) {
+      builder: (context, ref, _) {
+        final appLocalizations = context.appLocalizations;
         final url = ref.watch(
           patchClashConfigProvider.select(
             (state) => state.geoXUrl.toJson()[geoItem.key],
           ),
         );
         if (url == null) {
-          return SizedBox();
+          return const SizedBox();
         }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +126,7 @@ class _GeoDataListItemState extends State<GeoDataListItem> {
                   child: snapshot.data == null
                       ? SizedBox(width: height, height: height)
                       : Text(
-                          snapshot.data!.desc,
+                          snapshot.data!.getDesc(context),
                           style: context.textTheme.bodyMedium,
                         ),
                 );
@@ -155,10 +155,10 @@ class _GeoDataListItemState extends State<GeoDataListItem> {
                         valueListenable: isUpdating,
                         builder: (_, isUpdating, _) {
                           return isUpdating
-                              ? SizedBox(
+                              ? const SizedBox(
                                   height: 30,
                                   width: 30,
-                                  child: const Padding(
+                                  child: Padding(
                                     padding: EdgeInsets.all(2),
                                     child: CircularProgressIndicator(),
                                   ),
@@ -185,7 +185,7 @@ class _GeoDataListItemState extends State<GeoDataListItem> {
   }
 
   Future<void> _handleUpdateGeoDataItem() async {
-    await appController.safeRun<void>(() async {
+    await globalState.safeRun<void>(() async {
       await updateGeoDateItem();
     }, silence: false);
     if (mounted) {
@@ -270,6 +270,7 @@ class _UpdateGeoUrlFormDialogState extends State<UpdateGeoUrlFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return CommonDialog(
       title: widget.title,
       actions: [

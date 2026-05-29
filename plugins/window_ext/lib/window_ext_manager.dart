@@ -39,6 +39,12 @@ class WindowExtManager {
   void removeListener(WindowExtListener listener) {
     _listeners.remove(listener);
   }
+
+  Future<void> setWindowCornerPreference({required bool round}) async {
+    await _channel.invokeMethod('setWindowCornerPreference', {
+      'round': round,
+    });
+  }
 }
 
 final windowExtManager = WindowExtManager.instance;

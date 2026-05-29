@@ -1,5 +1,4 @@
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
@@ -17,7 +16,7 @@ class LogsView extends ConsumerStatefulWidget {
 }
 
 class _LogsViewState extends ConsumerState<LogsView> {
-  final _logsStateNotifier = ValueNotifier<LogsState>(LogsState());
+  final _logsStateNotifier = ValueNotifier<LogsState>(const LogsState());
   late ScrollController _scrollController;
 
   List<Log> _logs = [];
@@ -28,11 +27,14 @@ class _LogsViewState extends ConsumerState<LogsView> {
     _logs = ref.read(logsProvider).list;
     _scrollController = ScrollController(initialScrollOffset: double.maxFinite);
     _logsStateNotifier.value = _logsStateNotifier.value.copyWith(logs: _logs);
-    ref.listenManual(logsProvider.select((state) => state.list), (prev, next) {
+    ref.listenManual(logsProvider.select((state) => VM(state.list)), (
+      prev,
+      next,
+    ) {
       if (prev != next) {
-        final isEquality = logListEquality.equals(prev, next);
+        final isEquality = logListEquality.equals(prev?.a, next.a);
         if (!isEquality) {
-          _logs = next;
+          _logs = next.a;
           updateLogsThrottler();
         }
       }
@@ -68,8 +70,11 @@ class _LogsViewState extends ConsumerState<LogsView> {
   }
 
   Future<void> _handleExport() async {
-    final res = await appController.safeRun<bool>(() async {
-      return await appController.exportLogs();
+    final appLocalizations = context.appLocalizations;
+    final res = await globalState.safeRun<bool>(() async {
+      return globalState.container
+          .read(logsProvider.notifier)
+          .exportLogs();
     }, title: appLocalizations.exportLogs);
     if (res != true) return;
     globalState.showMessage(
@@ -102,6 +107,7 @@ class _LogsViewState extends ConsumerState<LogsView> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return CommonScaffold(
       actions: _buildActions(),
       onKeywordsUpdate: _onKeywordsUpdate,
@@ -132,7 +138,7 @@ class _LogsViewState extends ConsumerState<LogsView> {
           final logs = state.list;
           if (logs.isEmpty) {
             return NullStatus(
-              illustration: LogEmptyIllustration(),
+              illustration: const LogEmptyIllustration(),
               label: appLocalizations.nullTip(appLocalizations.logs),
             );
           }
@@ -162,7 +168,7 @@ class _LogsViewState extends ConsumerState<LogsView> {
               child: CommonScrollBar(
                 controller: _scrollController,
                 child: SuperListView.builder(
-                  physics: NextClampingScrollPhysics(),
+                  physics: const NextClampingScrollPhysics(),
                   reverse: true,
                   shrinkWrap: true,
                   controller: _scrollController,
@@ -193,11 +199,13 @@ class LogItem extends StatelessWidget {
       onTap: () {},
       title: SelectableText(
         log.payload,
-        style: context.textTheme.bodyLarge?.copyWith(color: log.logLevel.color),
+        style: context.textTheme.bodyLarge?.copyWith(
+          color: log.logLevel.color(context),
+        ),
       ),
       subtitle: Column(
         children: [
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

@@ -8,7 +8,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 class Picker {
   Future<PlatformFile?> pickerFile({bool withData = true}) async {
-    final filePickerResult = await FilePicker.platform.pickFiles(
+    final filePickerResult = await FilePicker.pickFiles(
       withData: withData,
       allowMultiple: false,
       initialDirectory: await appPath.downloadDirPath,
@@ -17,7 +17,7 @@ class Picker {
   }
 
   Future<String?> saveFile(String fileName, Uint8List bytes) async {
-    final path = await FilePicker.platform.saveFile(
+    final path = await FilePicker.saveFile(
       fileName: fileName,
       initialDirectory: await appPath.downloadDirPath,
       bytes: bytes,
@@ -35,7 +35,7 @@ class Picker {
       await localFile.create(recursive: true);
     }
     final bytes = Platform.isAndroid ? await localFile.readAsBytes() : null;
-    final path = await FilePicker.platform.saveFile(
+    final path = await FilePicker.saveFile(
       fileName: fileName,
       initialDirectory: await appPath.downloadDirPath,
       bytes: bytes,
@@ -59,7 +59,7 @@ class Picker {
     );
     final result = capture?.barcodes.first.rawValue;
     if (result == null || !result.isUrl) {
-      throw appLocalizations.pleaseUploadValidQrcode;
+      throw currentAppLocalizations.pleaseUploadValidQrcode;
     }
     return result;
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CommonCircleLoading extends StatefulWidget {
+  static const double defaultDimension = 32;
+
   final Color? color;
 
   const CommonCircleLoading({super.key, this.color});
@@ -44,24 +46,46 @@ class _CommonCircleLoadingState extends State<CommonCircleLoading>
   Widget build(BuildContext context) {
     final color = widget.color ?? Theme.of(context).colorScheme.primary;
 
-    return RepaintBoundary(
-      child: RotationTransition(
-        turns: _rotateController,
-        child: SizedBox.expand(
-          child: AnimatedBuilder(
-            animation: _pointsController,
-            builder: (context, child) {
-              return CustomPaint(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dimension = _resolveDimension(constraints);
+        return Align(
+          widthFactor: 1,
+          heightFactor: 1,
+          child: RepaintBoundary(
+            child: RotationTransition(
+              turns: _rotateController,
+              child: CustomPaint(
+                size: Size.square(dimension),
                 painter: _StarPainter(
                   points: _pointsAnimation.value,
                   color: color,
                 ),
-              );
-            },
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
+  }
+
+  double _resolveDimension(BoxConstraints constraints) {
+    final maxWidth = constraints.maxWidth;
+    final maxHeight = constraints.maxHeight;
+
+    if (maxWidth.isFinite && maxHeight.isFinite) {
+      return maxWidth < maxHeight ? maxWidth : maxHeight;
+    }
+
+    if (maxWidth.isFinite) {
+      return maxWidth;
+    }
+
+    if (maxHeight.isFinite) {
+      return maxHeight;
+    }
+
+    return CommonCircleLoading.defaultDimension;
   }
 }
 

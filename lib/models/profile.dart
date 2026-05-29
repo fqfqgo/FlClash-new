@@ -8,7 +8,6 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'clash_config.dart';
-import 'state.dart';
 
 part 'generated/profile.freezed.dart';
 part 'generated/profile.g.dart';
@@ -28,7 +27,7 @@ abstract class SubscriptionInfo with _$SubscriptionInfo {
   factory SubscriptionInfo.formHString(String? info) {
     if (info == null) return const SubscriptionInfo();
     final list = info.split(';');
-    Map<String, int?> map = {};
+    final Map<String, int?> map = {};
     for (final i in list) {
       final keyValue = i.trim().split('=');
       map[keyValue[0]] = int.tryParse(keyValue[1]);
@@ -148,20 +147,8 @@ extension ProfilesExt on List<Profile> {
     }
   }
 
-  VM2<List<Profile>, Profile> copyAndAddProfile(Profile profile) {
-    final List<Profile> profilesTemp = List.from(this);
-    final index = profilesTemp.indexWhere(
-      (element) => element.id == profile.id,
-    );
-    final updateProfile = profile.copyWith(
-      label: _getLabel(profile.label, profile.id),
-    );
-    if (index == -1) {
-      profilesTemp.add(updateProfile);
-    } else {
-      profilesTemp[index] = updateProfile;
-    }
-    return VM2(profilesTemp, updateProfile);
+  Profile optimizeLabel(Profile profile) {
+    return profile.copyWith(label: _getLabel(profile.label, profile.id));
   }
 }
 
@@ -191,7 +178,7 @@ extension ProfileExtension on Profile {
     final file = File(path);
     final isExists = await file.exists();
     if (!isExists && autoCreate) {
-      return await file.create(recursive: true);
+      return file.create(recursive: true);
     }
     return file;
     // final oldPath = await appPath.getProfilePath(id);
@@ -233,7 +220,7 @@ extension ProfileExtension on Profile {
       data = decrypted;
     }
 
-    return await copyWith(
+    return copyWith(
       label: label.takeFirstValid([
         utils.getFileNameForDisposition(disposition),
         id.toString(),

@@ -23,15 +23,15 @@ class AutoLaunch {
   }
 
   Future<bool> get isEnable async {
-    return await launchAtStartup.isEnabled();
+    return launchAtStartup.isEnabled();
   }
 
   Future<bool> enable() async {
-    return await launchAtStartup.enable();
+    return launchAtStartup.enable();
   }
 
   Future<bool> disable() async {
-    return await launchAtStartup.disable();
+    return launchAtStartup.disable();
   }
 
   Future<void> updateStatus(bool isAutoLaunch) async {

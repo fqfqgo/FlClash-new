@@ -31,14 +31,14 @@ class App {
   }
 
   Future<bool?> moveTaskToBack() async {
-    return await methodChannel.invokeMethod<bool>('moveTaskToBack');
+    return methodChannel.invokeMethod<bool>('moveTaskToBack');
   }
 
   Future<List<Package>> getPackages() async {
     final packagesString = await methodChannel.invokeMethod<String>(
       'getPackages',
     );
-    List<dynamic> packagesRaw =
+    final List<dynamic> packagesRaw =
         (await packagesString?.commonToJSON<List<dynamic>>()) ?? [];
     return packagesRaw.map((e) => Package.fromJson(e)).toSet().toList();
   }
@@ -47,13 +47,13 @@ class App {
     final packageNamesString = await methodChannel.invokeMethod<String>(
       'getChinaPackageNames',
     );
-    List<dynamic> packageNamesRaw =
+    final List<dynamic> packageNamesRaw =
         await packageNamesString?.commonToJSON<List<dynamic>>() ?? [];
     return packageNamesRaw.map((e) => e.toString()).toList();
   }
 
   Future<bool?> requestNotificationsPermission() async {
-    return await methodChannel.invokeMethod<bool>(
+    return methodChannel.invokeMethod<bool>(
       'requestNotificationsPermission',
     );
   }
@@ -74,22 +74,37 @@ class App {
   }
 
   Future<bool?> tip(String? message) async {
-    return await methodChannel.invokeMethod<bool>('tip', {
+    return methodChannel.invokeMethod<bool>('tip', {
       'message': '$message',
     });
   }
 
   Future<bool?> initShortcuts() async {
-    return await methodChannel.invokeMethod<bool>(
+    return methodChannel.invokeMethod<bool>(
       'initShortcuts',
-      appLocalizations.toggle,
+      currentAppLocalizations.toggle,
     );
   }
 
   Future<bool?> updateExcludeFromRecents(bool value) async {
-    return await methodChannel.invokeMethod<bool>('updateExcludeFromRecents', {
+    return methodChannel.invokeMethod<bool>('updateExcludeFromRecents', {
       'value': value,
     });
+  }
+
+  Future<bool?> isBatteryOptimizationDisabled() async {
+    if (!Platform.isAndroid) return true;
+    return methodChannel.invokeMethod<bool>('isBatteryOptimizationDisabled');
+  }
+
+  Future<bool?> openBatteryOptimizationSettings() async {
+    if (!Platform.isAndroid) return false;
+    return methodChannel.invokeMethod<bool>('openBatteryOptimizationSettings');
+  }
+
+  Future<bool?> openAppSettings() async {
+    if (!Platform.isAndroid) return false;
+    return methodChannel.invokeMethod<bool>('openAppSettings');
   }
 }
 

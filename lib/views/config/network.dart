@@ -11,6 +11,7 @@ class VPNItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final enable = ref.watch(
       vpnSettingProvider.select((state) => state.enable),
     );
@@ -34,6 +35,7 @@ class TUNItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final enable = ref.watch(
       patchClashConfigProvider.select((state) => state.tun.enable),
     );
@@ -58,6 +60,7 @@ class AllowBypassItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final allowBypass = ref.watch(
       vpnSettingProvider.select((state) => state.allowBypass),
     );
@@ -81,6 +84,7 @@ class VpnSystemProxyItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final systemProxy = ref.watch(
       vpnSettingProvider.select((state) => state.systemProxy),
     );
@@ -104,6 +108,7 @@ class SystemProxyItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final systemProxy = ref.watch(
       networkSettingProvider.select((state) => state.systemProxy),
     );
@@ -128,6 +133,7 @@ class Ipv6Item extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final ipv6 = ref.watch(vpnSettingProvider.select((state) => state.ipv6));
     return ListItem.switchItem(
       title: const Text('IPv6'),
@@ -149,6 +155,7 @@ class AutoSetSystemDnsItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final autoSetSystemDns = ref.watch(
       networkSettingProvider.select((state) => state.autoSetSystemDns),
     );
@@ -171,6 +178,7 @@ class TunStackItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final stack = ref.watch(
       patchClashConfigProvider.select((state) => state.tun.stack),
     );
@@ -201,6 +209,7 @@ class BypassDomainItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final bypassDomain = ref.watch(
       networkSettingProvider.select((state) => state.bypassDomain),
     );
@@ -231,6 +240,7 @@ class DNSHijackingItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final dnsHijacking = ref.watch(
       vpnSettingProvider.select((state) => state.dnsHijacking),
     );
@@ -253,6 +263,7 @@ class RouteModeItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final routeMode = ref.watch(
       networkSettingProvider.select((state) => state.routeMode),
     );
@@ -282,6 +293,7 @@ class RouteAddressItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final appLocalizations = context.appLocalizations;
     final bypassPrivate = ref.watch(
       networkSettingProvider.select(
         (state) => state.routeMode == RouteMode.bypassPrivate,
@@ -316,43 +328,42 @@ class RouteAddressItem extends ConsumerWidget {
   }
 }
 
-final networkItems = [
-  if (system.isAndroid) const VPNItem(),
-  if (system.isAndroid)
-    ...generateSection(
-      title: 'VPN',
-      items: [
-        const VpnSystemProxyItem(),
-        const BypassDomainItem(),
-        const AllowBypassItem(),
-        const Ipv6Item(),
-        const DNSHijackingItem(),
-      ],
-    ),
-  if (system.isDesktop)
-    ...generateSection(
-      title: appLocalizations.system,
-      items: [SystemProxyItem(), BypassDomainItem()],
-    ),
-  ...generateSection(
-    title: appLocalizations.options,
-    items: [
-      if (system.isDesktop) const TUNItem(),
-      if (system.isMacOS) const AutoSetSystemDnsItem(),
-      const TunStackItem(),
-      if (!system.isDesktop) ...[
-        const RouteModeItem(),
-        const RouteAddressItem(),
-      ],
-    ],
-  ),
-];
-
 class NetworkListView extends StatelessWidget {
   const NetworkListView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return generateListView(networkItems);
+    final appLocalizations = context.appLocalizations;
+    return generateListView([
+      if (system.isAndroid) const VPNItem(),
+      if (system.isAndroid)
+        ...generateSection(
+          title: 'VPN',
+          items: [
+            const VpnSystemProxyItem(),
+            const BypassDomainItem(),
+            const AllowBypassItem(),
+            const Ipv6Item(),
+            const DNSHijackingItem(),
+          ],
+        ),
+      if (system.isDesktop)
+        ...generateSection(
+          title: appLocalizations.system,
+          items: [const SystemProxyItem(), const BypassDomainItem()],
+        ),
+      ...generateSection(
+        title: appLocalizations.options,
+        items: [
+          if (system.isDesktop) const TUNItem(),
+          if (system.isMacOS) const AutoSetSystemDnsItem(),
+          const TunStackItem(),
+          if (!system.isDesktop) ...[
+            const RouteModeItem(),
+            const RouteAddressItem(),
+          ],
+        ],
+      ),
+    ]);
   }
 }

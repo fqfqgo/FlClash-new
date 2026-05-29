@@ -16,14 +16,14 @@ class NullStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment(0.0, -0.25),
+      alignment: const Alignment(0.0, -0.25),
       child: Wrap(
         direction: Axis.vertical,
         runAlignment: WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           illustration,
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             label,
             style: Theme.of(context).textTheme.titleMedium?.toBold.toLight,
@@ -42,7 +42,7 @@ class LogEmptyIllustration extends StatelessWidget {
     return Container(
       decoration: ShapeDecoration(
         color: context.colorScheme.primaryContainer,
-        shape: StarBorder(
+        shape: const StarBorder(
           points: 5,
           innerRadiusRatio: 0.8,
           pointRounding: 0.7,
@@ -50,7 +50,7 @@ class LogEmptyIllustration extends StatelessWidget {
           squash: 0.5,
         ),
       ),
-      child: _ThemeAwareSvg('assets/images/empty/log.svg'),
+      child: const _ThemeAwareSvg('assets/images/empty/log.svg'),
     );
   }
 }
@@ -63,7 +63,7 @@ class ProxyEmptyIllustration extends StatelessWidget {
     return Container(
       decoration: ShapeDecoration(
         color: context.colorScheme.secondaryContainer,
-        shape: StarBorder(
+        shape: const StarBorder(
           points: 12,
           innerRadiusRatio: 0.8,
           pointRounding: 0.5,
@@ -71,7 +71,7 @@ class ProxyEmptyIllustration extends StatelessWidget {
           squash: 0.6,
         ),
       ),
-      child: _ThemeAwareSvg('assets/images/empty/proxy.svg'),
+      child: const _ThemeAwareSvg('assets/images/empty/proxy.svg'),
     );
   }
 }
@@ -84,7 +84,7 @@ class DataEmptyIllustration extends StatelessWidget {
     return Container(
       decoration: ShapeDecoration(
         color: context.colorScheme.secondaryContainer,
-        shape: StarBorder(
+        shape: const StarBorder(
           points: 3,
           innerRadiusRatio: 1,
           pointRounding: 0.3,
@@ -92,7 +92,7 @@ class DataEmptyIllustration extends StatelessWidget {
           squash: 0.2,
         ),
       ),
-      child: _ThemeAwareSvg('assets/images/empty/data.svg'),
+      child: const _ThemeAwareSvg('assets/images/empty/data.svg'),
     );
   }
 }
@@ -105,7 +105,7 @@ class ProfileEmptyIllustration extends StatelessWidget {
     return Container(
       decoration: ShapeDecoration(
         color: context.colorScheme.secondaryContainer,
-        shape: StarBorder(
+        shape: const StarBorder(
           points: 8,
           innerRadiusRatio: 0.6,
           pointRounding: 1,
@@ -113,7 +113,7 @@ class ProfileEmptyIllustration extends StatelessWidget {
           squash: 1,
         ),
       ),
-      child: _ThemeAwareSvg('assets/images/empty/profile.svg'),
+      child: const _ThemeAwareSvg('assets/images/empty/profile.svg'),
     );
   }
 }
@@ -126,7 +126,7 @@ class ScriptEmptyIllustration extends StatelessWidget {
     return Container(
       decoration: ShapeDecoration(
         color: context.colorScheme.secondaryContainer,
-        shape: StarBorder(
+        shape: const StarBorder(
           points: 3,
           innerRadiusRatio: 0.6,
           pointRounding: 0.6,
@@ -134,7 +134,7 @@ class ScriptEmptyIllustration extends StatelessWidget {
           squash: 0.1,
         ),
       ),
-      child: _ThemeAwareSvg('assets/images/empty/script.svg'),
+      child: const _ThemeAwareSvg('assets/images/empty/script.svg'),
     );
   }
 }
@@ -147,7 +147,7 @@ class RuleEmptyIllustration extends StatelessWidget {
     return Container(
       decoration: ShapeDecoration(
         color: context.colorScheme.secondaryContainer,
-        shape: StarBorder(
+        shape: const StarBorder(
           points: 7,
           innerRadiusRatio: 0.3,
           pointRounding: 0.9,
@@ -155,7 +155,7 @@ class RuleEmptyIllustration extends StatelessWidget {
           squash: 0,
         ),
       ),
-      child: _ThemeAwareSvg('assets/images/empty/rule.svg'),
+      child: const _ThemeAwareSvg('assets/images/empty/rule.svg'),
     );
   }
 }
@@ -168,7 +168,7 @@ class ConnectionEmptyIllustration extends StatelessWidget {
     return Container(
       decoration: ShapeDecoration(
         color: context.colorScheme.secondaryContainer,
-        shape: StarBorder(
+        shape: const StarBorder(
           points: 4,
           innerRadiusRatio: 0.1,
           pointRounding: 1,
@@ -177,7 +177,7 @@ class ConnectionEmptyIllustration extends StatelessWidget {
           rotation: 45,
         ),
       ),
-      child: _ThemeAwareSvg('assets/images/empty/connection.svg'),
+      child: const _ThemeAwareSvg('assets/images/empty/connection.svg'),
     );
   }
 }
@@ -221,7 +221,7 @@ class _ThemeAwareSvg extends StatelessWidget {
         } else if (snapshot.hasError) {
           return const Icon(Icons.error);
         }
-        return SizedBox(width: 200, height: 200);
+        return const SizedBox(width: 200, height: 200);
       },
     );
   }

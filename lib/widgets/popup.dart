@@ -39,7 +39,7 @@ class CommonPopupRoute<T> extends PopupRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    final align = Alignment.topRight;
+    const align = Alignment.topRight;
     final curveAnimation = animation
         .drive(Tween(begin: 0.0, end: 1.0))
         .drive(CurveTween(curve: Curves.easeOutBack));
@@ -176,12 +176,12 @@ class OverflowAwareLayoutDelegate extends SingleChildLayoutDelegate {
 
   @override
   Offset getPositionForChild(Size size, Size childSize) {
-    final safeOffset = Offset(16, 16);
-    double x = (offset.dx - childSize.width).clamp(
+    const safeOffset = Offset(16, 16);
+    final double x = (offset.dx - childSize.width).clamp(
       0,
       size.width - safeOffset.dx - childSize.width,
     );
-    double y = (offset.dy).clamp(
+    final double y = (offset.dy).clamp(
       0,
       size.height - safeOffset.dy - childSize.height,
     );
@@ -303,7 +303,7 @@ class _CommonPopupMenuItemsState extends State<_CommonPopupMenuItems> {
                 size: widget.fontSize + 4,
                 color: foregroundColor,
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
             ],
             Flexible(
               child: Text(
@@ -327,7 +327,7 @@ class _CommonPopupMenuItemsState extends State<_CommonPopupMenuItems> {
       children: [
         for (final item in items.asMap().entries) ...[
           _popupMenuItem(context, item: item.value, index: item.key),
-          if (item.value != items.last) Divider(height: 0),
+          if (item.value != items.last) const Divider(height: 0),
         ],
       ],
     );
@@ -339,7 +339,7 @@ class _CommonPopupMenuItemsState extends State<_CommonPopupMenuItems> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 8, top: 6, bottom: 2),
+          padding: const EdgeInsets.only(left: 8, top: 6, bottom: 2),
           child: Row(
             spacing: 4,
             children: [
@@ -354,7 +354,7 @@ class _CommonPopupMenuItemsState extends State<_CommonPopupMenuItems> {
                   });
                 },
                 iconSize: 18,
-                style: ButtonStyle(
+                style: const ButtonStyle(
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   minimumSize: WidgetStatePropertyAll(Size.zero),
                   padding: WidgetStatePropertyAll(EdgeInsets.all(8)),
@@ -389,7 +389,7 @@ class _CommonPopupMenuItemsState extends State<_CommonPopupMenuItems> {
       crossSlideState: _status
           ? CrossSlideState.showSecond
           : CrossSlideState.showFirst,
-      duration: Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 250),
     );
   }
 }

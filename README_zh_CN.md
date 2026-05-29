@@ -81,29 +81,34 @@ on Mobile:
         3. 运行构建脚本
 
            ```bash
-           dart .\setup.dart android
+           dart setup.dart android
            ```
 
     - windows
 
         1. 你需要一个windows客户端
 
-        2. 安装 `Gcc`，`Inno Setup`
+        2. 安装 `GCC`，`Inno Setup`
 
         3. 运行构建脚本
 
            ```bash
-           dart .\setup.dart windows --arch <arm64 | amd64>
+           dart setup.dart windows
            ```
 
     - linux
 
         1. 你需要一个linux客户端
 
-        2. 运行构建脚本
+        2. 依赖会由 setup 脚本自动安装，也可以手动安装：
+           ```bash
+           sudo apt-get install -y libayatana-appindicator3-dev libkeybinder-3.0-dev
+           ```
+
+        3. 运行构建脚本
 
            ```bash
-           dart .\setup.dart linux --arch <arm64 | amd64>
+           dart setup.dart linux
            ```
 
     - macOS
@@ -113,10 +118,10 @@ on Mobile:
         2. 运行构建脚本
 
            ```bash
-           dart .\setup.dart macos --arch <arm64 | amd64>
+           dart setup.dart macos
            ```
 
-## Star History
+## Star
 
 支持开发者的最简单方式是点击页面顶部的星标（⭐）。
 

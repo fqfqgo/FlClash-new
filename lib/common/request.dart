@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 class Request {
   late final Dio dio;
@@ -24,7 +23,7 @@ class Request {
       createHttpClient: () {
         final client = HttpClient();
         client.findProxy = (Uri uri) {
-          client.userAgent = appController.ua;
+          client.userAgent = globalState.ua;
           return FlClashHttpOverrides.handleFindProxy(uri);
         };
         return client;
@@ -42,13 +41,13 @@ class Request {
       commonPrint.log('getFileResponseForUrl error ${e.toString()}');
       if (e is DioException) {
         if (e.type == DioExceptionType.unknown) {
-          throw appLocalizations.unknownNetworkError;
+          throw currentAppLocalizations.unknownNetworkError;
         } else if (e.type == DioExceptionType.badResponse) {
-          throw appLocalizations.networkException;
+          throw currentAppLocalizations.networkException;
         }
         rethrow;
       }
-      throw appLocalizations.unknownNetworkError;
+      throw currentAppLocalizations.unknownNetworkError;
     }
   }
 
@@ -106,7 +105,7 @@ class Request {
     final token = cancelToken ?? CancelToken();
     final futures = _ipInfoSources.entries.map((source) async {
       final Completer<Result<IpInfo?>> completer = Completer();
-      handleFailRes() {
+      void handleFailRes() {
         if (!completer.isCompleted && failureCount == _ipInfoSources.length) {
           completer.complete(Result.success(null));
         }
@@ -114,27 +113,30 @@ class Request {
 
       final future = dio
           .get<Map<String, dynamic>>(
-            source.key,
-            cancelToken: token,
-            options: Options(responseType: ResponseType.json),
-          )
+        source.key,
+        cancelToken: token,
+        options: Options(responseType: ResponseType.json),
+      )
           .timeout(const Duration(seconds: 10));
       future
           .then((res) {
-            if (res.statusCode == HttpStatus.ok && res.data != null) {
-              completer.complete(Result.success(source.value(res.data!)));
-              return;
-            }
-            failureCount++;
-            handleFailRes();
-          })
+        if (res.statusCode == HttpStatus.ok && res.data != null) {
+          completer.complete(Result.success(source.value(res.data!)));
+          return;
+        }
+        commonPrint.log('checkIp data empty', logLevel: LogLevel.info);
+        failureCount++;
+        handleFailRes();
+      })
           .catchError((e) {
-            failureCount++;
-            if (e is DioException && e.type == DioExceptionType.cancel) {
-              completer.complete(Result.error('cancelled'));
-            }
-            handleFailRes();
-          });
+        failureCount++;
+        if (e is DioException && e.type == DioExceptionType.cancel) {
+          completer.complete(Result.error('cancelled'));
+          return;
+        }
+        commonPrint.log('checkIp error $e', logLevel: LogLevel.warning);
+        handleFailRes();
+      });
       return completer.future;
     });
     final res = await Future.any(futures);
@@ -143,12 +145,13 @@ class Request {
   }
 
   Future<bool> pingHelper() async {
+    if (kDebugMode) return true;
     try {
       final response = await dio
           .get(
-            'http://$localhost:$helperPort/ping',
-            options: Options(responseType: ResponseType.plain),
-          )
+        'http://$localhost:$helperPort/ping',
+        options: Options(responseType: ResponseType.plain),
+      )
           .timeout(const Duration(milliseconds: 2000));
       if (response.statusCode != HttpStatus.ok) {
         return false;
@@ -163,10 +166,10 @@ class Request {
     try {
       final response = await dio
           .post(
-            'http://$localhost:$helperPort/start',
-            data: json.encode({'path': appPath.corePath, 'arg': arg}),
-            options: Options(responseType: ResponseType.plain),
-          )
+        'http://$localhost:$helperPort/start',
+        data: json.encode({'path': appPath.corePath, 'arg': arg}),
+        options: Options(responseType: ResponseType.plain),
+      )
           .timeout(const Duration(milliseconds: 2000));
       if (response.statusCode != HttpStatus.ok) {
         return false;
@@ -182,9 +185,9 @@ class Request {
     try {
       final response = await dio
           .post(
-            'http://$localhost:$helperPort/stop',
-            options: Options(responseType: ResponseType.plain),
-          )
+        'http://$localhost:$helperPort/stop',
+        options: Options(responseType: ResponseType.plain),
+      )
           .timeout(const Duration(milliseconds: 2000));
       if (response.statusCode != HttpStatus.ok) {
         return false;

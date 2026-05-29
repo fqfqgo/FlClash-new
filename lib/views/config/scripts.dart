@@ -6,14 +6,8 @@ import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/pages/editor.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/database.dart';
-import 'package:fl_clash/providers/state.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/widgets/input.dart';
-import 'package:fl_clash/widgets/list.dart';
-import 'package:fl_clash/widgets/null_status.dart';
-import 'package:fl_clash/widgets/pop_scope.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
-import 'package:fl_clash/widgets/theme.dart';
+import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,6 +22,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
   final _key = utils.id;
 
   Future<void> _handleDelScript(int id) async {
+    final appLocalizations = context.appLocalizations;
     final res = await globalState.showMessage(
       message: TextSpan(
         text: appLocalizations.deleteTip(appLocalizations.script),
@@ -37,7 +32,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
       return;
     }
     ref.read(scriptsProvider.notifier).del(id);
-    ref.read(selectedItemProvider(_key).notifier).value = null;
+    ref.read(itemProvider(_key).notifier).value = null;
     _clearEffect(id);
   }
 
@@ -47,7 +42,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
   }
 
   void _handleSelected(int id) {
-    ref.read(selectedItemProvider(_key).notifier).update((value) {
+    ref.read(itemProvider(_key).notifier).update((value) {
       if (value == id) {
         return null;
       }
@@ -56,14 +51,15 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
   }
 
   Widget _buildContent(List<Script> scripts, int? selectedScriptId) {
+    final appLocalizations = context.appLocalizations;
     if (scripts.isEmpty) {
       return NullStatus(
-        illustration: ScriptEmptyIllustration(),
+        illustration: const ScriptEmptyIllustration(),
         label: appLocalizations.nullTip(appLocalizations.script),
       );
     }
     return ListView.builder(
-      padding: EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       itemCount: scripts.length,
       itemBuilder: (_, index) {
         final script = scripts[index];
@@ -91,6 +87,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     String content, {
     Script? script,
   }) async {
+    final appLocalizations = context.appLocalizations;
     Script newScript =
         (script?.copyWith(label: title) ?? Script.create(label: title));
     newScript = await newScript.save(content);
@@ -145,6 +142,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     String raw, {
     Script? script,
   }) async {
+    final appLocalizations = context.appLocalizations;
     if (content == raw) {
       return true;
     }
@@ -186,12 +184,13 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     final scripts = ref.watch(scriptsProvider).value ?? [];
-    final selectedScriptId = ref.watch(selectedItemProvider(_key));
+    final selectedScriptId = ref.watch(itemProvider(_key));
     return CommonPopScope(
       onPop: (_) {
         if (selectedScriptId != null) {
-          ref.read(selectedItemProvider(_key).notifier).value = null;
+          ref.read(itemProvider(_key).notifier).value = null;
           return false;
         }
         Navigator.of(context).pop();
@@ -205,10 +204,10 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                 onPressed: () {
                   _handleDelScript(selectedScriptId);
                 },
-                icon: Icon(Icons.delete),
+                icon: const Icon(Icons.delete),
               ),
             ),
-            SizedBox(width: 2),
+            const SizedBox(width: 2),
           ],
           CommonMinFilledButtonTheme(
             child: selectedScriptId != null
@@ -225,7 +224,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                     child: Text(appLocalizations.add),
                   ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
         ],
         body: _buildContent(scripts, selectedScriptId),
         title: appLocalizations.script,

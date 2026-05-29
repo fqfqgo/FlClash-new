@@ -2,7 +2,7 @@
 
 import 'dart:io';
 
-import 'package:fl_clash/common/color.dart';
+import 'package:fl_clash/common/context.dart';
 import 'package:fl_clash/common/system.dart';
 import 'package:fl_clash/views/dashboard/widgets/widgets.dart';
 import 'package:fl_clash/widgets/widgets.dart';
@@ -37,26 +37,35 @@ const desktopPlatforms = [
   SupportPlatform.Windows,
 ];
 
-enum GroupType {
-  Selector,
-  URLTest,
-  Fallback,
-  LoadBalance,
-  Relay;
+enum GroupName { GLOBAL }
 
-  static GroupType parseProfileType(String type) {
-    return switch (type) {
-      'url-test' => URLTest,
-      'select' => Selector,
+enum GroupType {
+  @JsonValue('select')
+  Selector('select'),
+  @JsonValue('url-test')
+  URLTest('url-test'),
+  @JsonValue('fallback')
+  Fallback('fallback'),
+  @JsonValue('load-balance')
+  LoadBalance('load-balance'),
+  @JsonValue('relay')
+  Relay('relay');
+
+  final String value;
+
+  const GroupType(this.value);
+
+  static GroupType parse(String type) {
+    return switch (type.toLowerCase()) {
+      'url-test' || 'urltest' => URLTest,
+      'select' || 'selector' => Selector,
       'fallback' => Fallback,
-      'load-balance' => LoadBalance,
+      'load-balance' || 'loadbalance' => LoadBalance,
       'relay' => Relay,
       String() => throw UnimplementedError(),
     };
   }
 }
-
-enum GroupName { GLOBAL, Proxy, Auto, Fallback }
 
 extension GroupTypeExtension on GroupType {
   static List<String> get valueList =>
@@ -71,8 +80,6 @@ extension GroupTypeExtension on GroupType {
     if (index == -1) return null;
     return GroupType.values[index];
   }
-
-  String get value => GroupTypeExtension.valueList[index];
 }
 
 enum UsedProxy { GLOBAL, DIRECT, REJECT }
@@ -91,13 +98,14 @@ enum ViewMode { mobile, laptop, desktop }
 enum LogLevel { debug, info, warning, error, silent }
 
 extension LogLevelExt on LogLevel {
-  Color? get color {
+  Color? color(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return switch (this) {
-      LogLevel.silent => Colors.grey.shade700,
-      LogLevel.debug => Colors.grey.shade400,
+      LogLevel.silent => colorScheme.outline,
+      LogLevel.debug => colorScheme.onSurfaceVariant,
       LogLevel.info => null,
-      LogLevel.warning => Colors.orangeAccent.darken(),
-      LogLevel.error => Colors.redAccent,
+      LogLevel.warning => colorScheme.tertiary,
+      LogLevel.error => colorScheme.error,
     };
   }
 }
@@ -282,6 +290,8 @@ enum FunctionTag {
   autoScrollToEnd,
   loadedProvider,
   saveSharedFile,
+  removeProxy,
+  suspend,
 }
 
 enum DashboardWidget {
@@ -311,7 +321,7 @@ enum DashboardWidget {
   const DashboardWidget(this.widget, {this.platforms = SupportPlatform.values});
 
   static DashboardWidget getDashboardWidget(GridItem gridItem) {
-    final dashboardWidgets = DashboardWidget.values;
+    const dashboardWidgets = DashboardWidget.values;
     final index = dashboardWidgets.indexWhere(
       (item) => item.widget == gridItem,
     );
@@ -394,6 +404,47 @@ extension RuleActionExt on RuleAction {
     RuleAction.IP_SUFFIX,
     RuleAction.RULE_SET,
   ].contains(this);
+
+  String getDesc(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
+    return switch (this) {
+      RuleAction.DOMAIN => appLocalizations.ruleActionDomainDesc,
+      RuleAction.DOMAIN_SUFFIX => appLocalizations.ruleActionDomainSuffixDesc,
+      RuleAction.DOMAIN_KEYWORD => appLocalizations.ruleActionDomainKeywordDesc,
+      RuleAction.DOMAIN_REGEX => appLocalizations.ruleActionDomainRegexDesc,
+      RuleAction.GEOSITE => appLocalizations.ruleActionGeositeDesc,
+      RuleAction.IP_CIDR => appLocalizations.ruleActionIpCidrDesc,
+      RuleAction.IP_CIDR6 => appLocalizations.ruleActionIpCidr6Desc,
+      RuleAction.IP_SUFFIX => appLocalizations.ruleActionIpSuffixDesc,
+      RuleAction.IP_ASN => appLocalizations.ruleActionIpAsnDesc,
+      RuleAction.GEOIP => appLocalizations.ruleActionGeoipDesc,
+      RuleAction.SRC_GEOIP => appLocalizations.ruleActionSrcGeoipDesc,
+      RuleAction.SRC_IP_ASN => appLocalizations.ruleActionSrcIpAsnDesc,
+      RuleAction.SRC_IP_CIDR => appLocalizations.ruleActionSrcIpCidrDesc,
+      RuleAction.SRC_IP_SUFFIX => appLocalizations.ruleActionSrcIpSuffixDesc,
+      RuleAction.DST_PORT => appLocalizations.ruleActionDstPortDesc,
+      RuleAction.SRC_PORT => appLocalizations.ruleActionSrcPortDesc,
+      RuleAction.IN_PORT => appLocalizations.ruleActionInPortDesc,
+      RuleAction.IN_TYPE => appLocalizations.ruleActionInTypeDesc,
+      RuleAction.IN_USER => appLocalizations.ruleActionInUserDesc,
+      RuleAction.IN_NAME => appLocalizations.ruleActionInNameDesc,
+      RuleAction.PROCESS_PATH => appLocalizations.ruleActionProcessPathDesc,
+      RuleAction.PROCESS_PATH_REGEX =>
+        appLocalizations.ruleActionProcessPathRegexDesc,
+      RuleAction.PROCESS_NAME => appLocalizations.ruleActionProcessNameDesc,
+      RuleAction.PROCESS_NAME_REGEX =>
+        appLocalizations.ruleActionProcessNameRegexDesc,
+      RuleAction.UID => appLocalizations.ruleActionUidDesc,
+      RuleAction.NETWORK => appLocalizations.ruleActionNetworkDesc,
+      RuleAction.DSCP => appLocalizations.ruleActionDscpDesc,
+      RuleAction.RULE_SET => appLocalizations.ruleActionRuleSetDesc,
+      RuleAction.AND => appLocalizations.ruleActionAndDesc,
+      RuleAction.OR => appLocalizations.ruleActionOrDesc,
+      RuleAction.NOT => appLocalizations.ruleActionNotDesc,
+      RuleAction.SUB_RULE => appLocalizations.ruleActionSubRuleDesc,
+      RuleAction.MATCH => appLocalizations.ruleActionMatchDesc,
+    };
+  }
 }
 
 enum OverrideRuleType { override, added }
@@ -402,10 +453,23 @@ enum OverwriteType {
   // none,
   standard,
   script,
-  // custom,
+  custom,
 }
 
-enum RuleTarget { DIRECT, REJECT, MATCH }
+enum RuleTarget {
+  DIRECT,
+  REJECT;
+
+  static Set<String> get baseTargets =>
+      RuleTarget.values.map((item) => item.name).toSet();
+
+  // static bool isBaseRuleTarget(String? target) {
+  //   return RuleTarget.values.indexWhere(
+  //         (item) => item.name == target?.toUpperCase(),
+  //       ) !=
+  //       -1;
+  // }
+}
 
 enum RestoreStrategy { compatible, override }
 
@@ -419,8 +483,54 @@ enum ScrollPositionCacheKey { tools, profiles, proxiesList, proxiesTabList }
 
 enum QueryTag { proxies, access }
 
-enum LoadingTag { profiles, backup_restore, access, proxies }
+enum LoadingTag {
+  profiles,
+  backup_restore,
+  access,
+  proxies,
+  batteryOptimization,
+}
 
 enum CoreStatus { connecting, connected, disconnected }
 
 enum RuleScene { added, disabled, custom }
+
+enum ItemPosition {
+  start,
+  middle,
+  end,
+  startAndEnd;
+
+  static ItemPosition get(int index, int length) {
+    ItemPosition position = ItemPosition.middle;
+    if (length == 1) {
+      position = ItemPosition.startAndEnd;
+    } else if (index == length - 1) {
+      position = ItemPosition.end;
+    } else if (index == 0) {
+      position = ItemPosition.start;
+    }
+    return position;
+  }
+
+  static ItemPosition calculateVisualPosition<T>(
+    int currentIndex,
+    List<T> items,
+    Set<T> deletedItems,
+  ) {
+    final currentItem = items[currentIndex];
+    if (deletedItems.contains(currentItem)) {
+      return ItemPosition.middle;
+    }
+    final int visualLength = items.length - deletedItems.length;
+    if (visualLength <= 0) return ItemPosition.middle;
+    int deletedCountBeforeMe = 0;
+    for (int i = 0; i < currentIndex; i++) {
+      if (deletedItems.contains(items[i])) {
+        deletedCountBeforeMe++;
+      }
+    }
+    final int visualIndex = currentIndex - deletedCountBeforeMe;
+    return ItemPosition.get(visualIndex, visualLength);
+  }
+}

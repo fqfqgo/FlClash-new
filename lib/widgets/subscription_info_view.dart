@@ -26,7 +26,7 @@ class SubscriptionInfoView extends StatelessWidget {
         ? DateTime.fromMillisecondsSinceEpoch(
             subscriptionInfo!.expire * 1000,
           ).show
-        : appLocalizations.infiniteTime;
+        : context.appLocalizations.infiniteTime;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

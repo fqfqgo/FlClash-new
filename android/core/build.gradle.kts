@@ -53,29 +53,3 @@ kotlin {
 dependencies {
     implementation(libs.annotation.jvm)
 }
-
-val copyNativeLibs by tasks.register<Copy>("copyNativeLibs") {
-    doFirst {
-        delete("src/main/jniLibs")
-    }
-    from("../../libclash/android")
-    into("src/main/jniLibs")
-
-    doLast {
-        val includesDir = file("src/main/jniLibs/includes")
-        val targetDir = file("src/main/cpp/includes")
-        if (includesDir.exists()) {
-            copy {
-                from(includesDir)
-                into(targetDir)
-            }
-            delete(includesDir)
-        }
-    }
-}
-
-afterEvaluate {
-    tasks.named("preBuild") {
-        dependsOn(copyNativeLibs)
-    }
-}
