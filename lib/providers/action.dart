@@ -10,6 +10,7 @@ import 'package:fl_clash/plugins/app.dart';
 import 'package:fl_clash/plugins/service.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -372,11 +373,16 @@ class SetupAction extends _$SetupAction {
     VoidCallback? preloadInvoke,
     FutureOr Function()? onUpdated,
   }) async {
+    ref.read(profilesActionProvider.notifier).ensureCurrentProfileSelected();
     var profile = ref.read(currentProfileProvider);
-    final nextProfile = await profile?.checkAndUpdateAndCopy();
-    if (nextProfile != null) {
-      profile = nextProfile;
-      ref.read(profilesProvider.notifier).put(nextProfile);
+    if (profile != null) {
+      final nextProfile = await ref
+          .read(profilesActionProvider.notifier)
+          .checkAndUpdateIfNeeded(profile);
+      if (nextProfile != null) {
+        profile = nextProfile;
+        ref.read(profilesProvider.notifier).put(nextProfile);
+      }
     }
     commonPrint.log('setup ===> ${profile?.id}');
     final patchConfig = ref.read(patchClashConfigProvider);
@@ -396,6 +402,9 @@ class SetupAction extends _$SetupAction {
     );
     final yamlString = vm2.a;
     final yamlMd5 = vm2.b;
+    if (yamlString.trim().isEmpty) {
+      throw currentAppLocalizations.emptyTip(currentAppLocalizations.profile);
+    }
     if (yamlMd5 == globalState.lastConfigMd5 && force == false) return;
     await globalState.loadingRun(
       () async {
@@ -760,8 +769,8 @@ class ProxiesAction extends _$ProxiesAction {
         },
         retryIf: (res) => res.isEmpty,
       );
-    } catch (e) {
-      commonPrint.log('updateGroups error: $e');
+    } catch (e, s) {
+      commonPrint.log('updateGroups error: $e\n$s', logLevel: LogLevel.warning);
       ref.read(groupsProvider.notifier).value = [];
     }
   }
@@ -880,11 +889,67 @@ class ProfilesAction extends _$ProfilesAction {
     ref.read(currentProfileIdProvider.notifier).value = profile.id;
   }
 
+  /// 订阅列表在 DB 中，但 [currentProfileId] 丢失/无效时代理页会空白。
+  void ensureCurrentProfileSelected() {
+    final profiles = ref.read(profilesProvider);
+    if (profiles.isEmpty) return;
+    final currentId = ref.read(currentProfileIdProvider);
+    if (currentId != null && profiles.any((p) => p.id == currentId)) {
+      return;
+    }
+    ref.read(currentProfileIdProvider.notifier).value = profiles.first.id;
+  }
+
   Future<void> updateProfiles() async {
     for (final profile in ref.read(profilesProvider)) {
       if (profile.type == ProfileType.file) continue;
       await updateProfile(profile);
     }
+  }
+
+  Future<String?> _promptSubscriptionPassword({bool passwordWrong = false}) {
+    return globalState.showCommonDialog<String>(
+      child: InputDialog(
+        title: passwordWrong
+            ? currentAppLocalizations.subscriptionPasswordWrongTip
+            : currentAppLocalizations.subscriptionLoginPassword,
+        labelText: currentAppLocalizations.subscriptionLoginPassword,
+        hintText: currentAppLocalizations.subscriptionLoginPasswordHint,
+        value: '',
+        obscureText: true,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return currentAppLocalizations.emptyTip(
+              currentAppLocalizations.subscriptionLoginPassword,
+            );
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Future<Profile?> updateProfileDecrypted(Profile profile) async {
+    var current = profile;
+    while (true) {
+      try {
+        return await current.update();
+      } on SubscriptionEncryptedException catch (e) {
+        final password = await _promptSubscriptionPassword(
+          passwordWrong: e.passwordWrong,
+        );
+        if (password == null) return null;
+        current = current.copyWith(loginPassword: password);
+      }
+    }
+  }
+
+  Future<Profile?> checkAndUpdateIfNeeded(Profile profile) async {
+    if (profile.url.isEmpty) return null;
+    final path = await appPath.getProfilePath(profile.id.toString());
+    final file = File(path);
+    if (await file.exists() && await file.length() > 0) return null;
+    return updateProfileDecrypted(profile);
   }
 
   Future<void> updateProfile(
@@ -896,7 +961,8 @@ class ProfilesAction extends _$ProfilesAction {
         ref.read(isUpdatingProvider(profile.updatingKey).notifier).value = true;
       }
       ref.read(profilesProvider.notifier).put(profile);
-      final newProfile = await profile.update();
+      final newProfile = await updateProfileDecrypted(profile);
+      if (newProfile == null) return;
       ref.read(profilesProvider.notifier).put(newProfile);
       if (profile.id == ref.read(currentProfileIdProvider)) {
         ref
@@ -931,13 +997,7 @@ class ProfilesAction extends _$ProfilesAction {
       globalState.navigatorKey.currentState?.popUntil((route) => route.isFirst);
     }
     ref.read(currentPageLabelProvider.notifier).value = PageLabel.profiles;
-    final profile = await globalState.loadingRun(
-      tag: LoadingTag.profiles,
-      () async {
-        return Profile.normal(url: url).update();
-      },
-      title: currentAppLocalizations.addProfile,
-    );
+    final profile = await updateProfileDecrypted(Profile.normal(url: url));
     if (profile != null) {
       putProfile(profile);
     }

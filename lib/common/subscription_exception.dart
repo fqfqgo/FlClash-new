@@ -1,3 +1,5 @@
+import 'package:fl_clash/common/app_localizations.dart';
+
 /// Thrown when subscription content is encrypted but password is missing or wrong
 class SubscriptionEncryptedException implements Exception {
   const SubscriptionEncryptedException({this.passwordWrong = false});
@@ -6,6 +8,7 @@ class SubscriptionEncryptedException implements Exception {
   final bool passwordWrong;
 
   @override
-  String toString() =>
-      'SubscriptionEncryptedException(passwordWrong: $passwordWrong)';
+  String toString() => passwordWrong
+      ? currentAppLocalizations.subscriptionPasswordWrongTip
+      : currentAppLocalizations.subscriptionLoginPassword;
 }

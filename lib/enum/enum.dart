@@ -75,10 +75,23 @@ extension GroupTypeExtension on GroupType {
     return [GroupType.URLTest, GroupType.Fallback].contains(this);
   }
 
+  /// Mihomo API may return `Selector` or yaml-style `select`.
+  static bool isProxyGroupType(dynamic type) {
+    if (type is! String) return false;
+    try {
+      GroupType.parse(type);
+      return true;
+    } on UnimplementedError {
+      return false;
+    }
+  }
+
   static GroupType? getGroupType(String value) {
-    final index = GroupTypeExtension.valueList.indexOf(value);
-    if (index == -1) return null;
-    return GroupType.values[index];
+    try {
+      return GroupType.parse(value);
+    } on UnimplementedError {
+      return null;
+    }
   }
 }
 

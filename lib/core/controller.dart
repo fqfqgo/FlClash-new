@@ -119,6 +119,9 @@ class CoreController {
     required String defaultTestUrl,
   }) async {
     final proxiesData = await _interface.getProxies();
+    commonPrint.log(
+      'getProxies all=${proxiesData.all.length} proxies=${proxiesData.proxies.length}',
+    );
     return toGroupsTask(
       ComputeGroupsState(
         proxiesData: proxiesData,
