@@ -1,3 +1,11 @@
+## v0.8.93.3
+
+- fix: show build suffix in displayed version
+
+- Convert package build numbers back into the visible release suffix for window and About page version text.
+
+- Co-authored-by: Cursor <cursoragent@cursor.com>
+
 ## v0.8.93.1
 
 - fix: patch repository links in release notes
