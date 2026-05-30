@@ -1,3 +1,31 @@
+## v0.8.93
+
+- fix: match upstream proxy selection after v0.8.93 sync
+
+- Restore upstream proxy filtering and profile selection behavior while keeping encrypted subscription password prompts.
+
+- Co-authored-by: Cursor <cursoragent@cursor.com>
+
+- fix: preserve fork profile behavior after v0.8.93 sync
+
+- Keep current profile recovery, non-hidden proxy groups, and encrypted subscription password prompts while staying on the upstream v0.8.93 merge.
+
+- Co-authored-by: Cursor <cursoragent@cursor.com>
+
+- Support custom overwrite
+
+- Support run on demand
+
+- Optimize windows ipc
+
+- Optimize windows arm64
+
+- Optimize build
+
+- Optimize some details
+
+- Update core
+
 ## v0.8.92.13
 
 - chore: point auto update check to fqfqgo/FlClash-new
