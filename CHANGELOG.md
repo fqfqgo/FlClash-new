@@ -1,3 +1,17 @@
+## v0.8.93.1
+
+- fix: patch repository links in release notes
+
+- Replace repository placeholders when generating release notes and point the downloads badge at the release page.
+
+- Co-authored-by: Cursor <cursoragent@cursor.com>
+
+- ui: update displayed product title
+
+- Change the visible product title in the window header and About page only.
+
+- Co-authored-by: Cursor <cursoragent@cursor.com>
+
 ## v0.8.93
 
 - fix: match upstream proxy selection after v0.8.93 sync
