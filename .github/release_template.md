@@ -1,6 +1,6 @@
 <div align=center>
 
-[![Release Downloads](https://img.shields.io/github/downloads/REPO/vVERSION/total?style=flat-square&logo=github)](https://img.shields.io/github/downloads/REPO/vVERSION/)
+[![Release Downloads](https://img.shields.io/github/downloads/REPO/vVERSION/total?style=flat-square&logo=github)](https://github.com/REPO/releases/tag/vVERSION)
 
 </div>
 
