@@ -134,7 +134,7 @@ class AboutView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            appName,
+                            'FlClash for v2free',
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           Text(

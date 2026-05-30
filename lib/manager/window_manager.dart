@@ -150,7 +150,7 @@ class _WindowHeaderState extends State<WindowHeader> {
   String get _windowTitle {
     final rawVersion = globalState.appDisplayVersion;
     final normalized = rawVersion.startsWith('v') ? rawVersion : 'v$rawVersion';
-    return '$appName-$normalized';
+    return 'FlClash for v2free-$normalized';
   }
 
   @override
