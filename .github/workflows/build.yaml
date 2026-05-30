@@ -147,6 +147,30 @@ jobs:
           add-to-path: true
           link-to-sdk: true
 
+      - name: Set version from tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_ver="${GITHUB_REF_NAME#v}"
+          IFS='.' read -r -a parts <<< "$tag_ver"
+          if [ "${#parts[@]}" -ge 4 ]; then
+            build_num="${parts[3]}"
+            pub_ver="${parts[0]}.${parts[1]}.${parts[2]}+${build_num}"
+          elif [ "${#parts[@]}" -ge 3 ]; then
+            pub_ver="${parts[0]}.${parts[1]}.${parts[2]}"
+          else
+            pub_ver="${tag_ver}"
+          fi
+          sed -i.bak "s/^version: .*/version: ${pub_ver}/" pubspec.yaml
+          rm -f pubspec.yaml.bak
+          printf '%s\n' \
+            "app_name: 'FlClash'" \
+            "output: 'dist/'" \
+            "artifact_name: \"{{name}}-${tag_ver}-{{platform}}{{#description}}-{{description}}{{/description}}{{#is_installer}}-setup{{/is_installer}}{{#ext}}.{{ext}}{{/ext}}\"" \
+            > distribute_options.yaml
+          head -n 5 pubspec.yaml
+          cat distribute_options.yaml
+
       - name: Get Flutter Dependency
         run: |
           flutter --version

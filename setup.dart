@@ -176,6 +176,8 @@ Future<int> _package(
   final depExit = await _ensureDependencies(platform, arch);
   if (depExit != 0) return depExit;
 
+  final artifactName = await _readDistributeArtifactName(rootDir);
+
   final process = await Process.start(
     'flutter_distributor',
     [
@@ -185,6 +187,7 @@ Future<int> _package(
       platform,
       '--targets',
       targets,
+      if (artifactName != null) '--artifact-name=$artifactName',
       if (androidArch != null)
         '--build-target-platform=${_androidFlutterTarget[androidArch]!}',
       if (flutterBuildArgs.isNotEmpty)
@@ -204,6 +207,16 @@ Future<int> _package(
   });
   final exitCode = await process.exitCode;
   return exitCode;
+}
+
+Future<String?> _readDistributeArtifactName(String rootDir) async {
+  final file = File(p.join(rootDir, 'distribute_options.yaml'));
+  if (!file.existsSync()) return null;
+  final match = RegExp(
+    r'''artifact_name:\s*(?:"([^"]*)"|'([^']*)'|(\S+))''',
+  ).firstMatch(await file.readAsString());
+  if (match == null) return null;
+  return match.group(1) ?? match.group(2) ?? match.group(3);
 }
 
 Future<String?> _buildGoCore(String rootDir) async {
