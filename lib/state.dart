@@ -83,10 +83,10 @@ class GlobalState {
     );
     final appStateOverrides = buildAppStateOverrides(appState);
     packageInfo = await PackageInfo.fromPlatform();
-    final definedVersion = const String.fromEnvironment('APP_VERSION');
+    const definedVersion = String.fromEnvironment('APP_VERSION');
     appDisplayVersion = definedVersion.isNotEmpty
-        ? definedVersion
-        : packageInfo.version;
+        ? _displayVersion(definedVersion)
+        : _displayPackageVersion(packageInfo.version, packageInfo.buildNumber);
     final configMap = await preferences.getConfigMap();
     final config = await migration.migrationIfNeeded(
       configMap,
@@ -400,6 +400,21 @@ class GlobalState {
         .read(appSettingProvider.notifier)
         .update((state) => state.copyWith(disclaimerAccepted: true));
   }
+}
+
+String _displayPackageVersion(String version, String buildNumber) {
+  final build = int.tryParse(buildNumber);
+  if (build == null || build <= 0 || version.contains('+')) {
+    return _displayVersion(version);
+  }
+  return '$version.$build';
+}
+
+String _displayVersion(String version) {
+  final normalized = version.startsWith('v') ? version.substring(1) : version;
+  final parts = normalized.split('+');
+  if (parts.length < 2 || parts[1] == '0') return parts.first;
+  return '${parts.first}.${parts[1]}';
 }
 
 final globalState = GlobalState();
