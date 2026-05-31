@@ -33,7 +33,7 @@ class Database extends _$Database {
   Database([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {
@@ -45,33 +45,40 @@ class Database extends _$Database {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
+      // fork 与上游曾对 schemaVersion 赋予不同语义，无法用版本号区分，
+      // 统一按表/列是否存在做幂等修复，兼容所有历史库。
       onUpgrade: (m, from, to) async {
-        if (from < 2) {
-          await m.createTable(proxyGroups);
-          await m.createTable(iconRecords);
-          await _resetOrders();
-          await _migrateRules(m);
-        }
-        if (from < 3) {
-          final tableInfo = await customSelect(
-            'PRAGMA table_info(profiles)',
-          ).get();
-          final hasLoginPassword = tableInfo.any(
-            (row) => row.read<String>('name') == 'login_password',
-          );
-          if (!hasLoginPassword) {
-            await m.addColumn(profiles, profiles.loginPassword);
+        if (from < 4) {
+          if (!await _hasTable('proxy_groups')) {
+            await m.createTable(proxyGroups);
           }
+          if (!await _hasTable('icon_records')) {
+            await m.createTable(iconRecords);
+          }
+          await _migrateRules(m);
+          await _migrateLoginPassword(m);
+          await _resetOrders();
         }
-      },
-      beforeOpen: (details) async {
-        // final m = Migrator(this);
-        // await m.createTable(iconRecords);
-        // await _migrateRules(m);
-        // await m.deleteTable('proxy_groups');
-        // await m.createTable(proxyGroups);
       },
     );
+  }
+
+  Future<bool> _hasTable(String name) async {
+    final rows = await customSelect(
+      "SELECT 1 FROM sqlite_master WHERE type='table' AND name = ?",
+      variables: [Variable.withString(name)],
+    ).get();
+    return rows.isNotEmpty;
+  }
+
+  Future<void> _migrateLoginPassword(Migrator m) async {
+    final tableInfo = await customSelect('PRAGMA table_info(profiles)').get();
+    final hasLoginPassword = tableInfo.any(
+      (row) => row.read<String>('name') == 'login_password',
+    );
+    if (!hasLoginPassword) {
+      await m.addColumn(profiles, profiles.loginPassword);
+    }
   }
 
   Future<void> _migrateRules(Migrator m) async {
