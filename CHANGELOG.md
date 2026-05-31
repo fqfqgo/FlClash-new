@@ -4,12 +4,6 @@
 
 - Older installs stored schemaVersion 2 with the legacy rules table, so the version-gated migration skipped adding rule_action and the proxy_groups / icon_records tables, causing a blank proxy page after upgrade. Bump to schemaVersion 4 and reconcile by table/column existence instead.
 
-- Co-authored-by: Cursor <cursoragent@cursor.com>
-
-- Update CHANGELOG.md
-
-- Update CHANGELOG.md
-
 ## v0.8.93.3
 
 - Optimize build
