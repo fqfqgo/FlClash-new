@@ -510,13 +510,9 @@ class _ReorderableProfilesSheetState extends State<ReorderableProfilesSheet> {
           proxyDecorator: (child, index, animation) {
             return commonProxyDecorator(_buildItem(index), index, animation);
           },
-          onReorder: (oldIndex, newIndex) {
+          onReorderItem: (oldIndex, newIndex) {
             setState(() {
-              if (oldIndex < newIndex) {
-                newIndex -= 1;
-              }
-              final profile = profiles.removeAt(oldIndex);
-              profiles.insert(newIndex, profile);
+              profiles = profiles.copyAndReorder(oldIndex, newIndex);
             });
           },
           itemBuilder: (_, index) {

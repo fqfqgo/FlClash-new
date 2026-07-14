@@ -11,8 +11,8 @@ import 'application.dart';
 import 'common/common.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   try {
-    WidgetsFlutterBinding.ensureInitialized();
     if (system.isDesktop) {
       await RustLib.init();
     }
@@ -26,7 +26,7 @@ Future<void> main() async {
       ),
     );
   } catch (e, s) {
-    return runApp(
+    runApp(
       MaterialApp(
         home: InitErrorScreen(error: e, stack: s),
       ),

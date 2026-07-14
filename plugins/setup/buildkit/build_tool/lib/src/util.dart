@@ -109,7 +109,6 @@ void copyFile(String source, String destination) {
   _log.fine('Copied $source -> $destination');
 }
 
-String joinPath(String part1,
-    [String? part2, String? part3, String? part4]) {
+String joinPath(String part1, [String? part2, String? part3, String? part4]) {
   return p.join(part1, part2, part3, part4);
 }

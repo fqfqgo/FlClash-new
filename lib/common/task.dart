@@ -185,7 +185,7 @@ Future<VM2<String, String>> _makeRealProfileTask(
     }
   }
   rawConfig['profile']['store-selected'] = false;
-  rawConfig['geox-url'] = realPatchConfig.geoXUrl.toJson();
+  rawConfig['geox-url'] = realPatchConfig.geoXUrl.raw;
   rawConfig['global-ua'] = realPatchConfig.globalUa ?? defaultUA;
   if (rawConfig['hosts'] == null) {
     rawConfig['hosts'] = {};
@@ -333,10 +333,10 @@ Future<String> _encodeLogsTask(List<Log> data) async {
 
 Future<MigrationData> oldToNowTask(Map<String, Object?> data) async {
   final homeDir = await appPath.homeDirPath;
-  return compute<
-    VM3<Map<String, Object?>, String, String>,
-    MigrationData
-  >(_oldToNowTask, VM3(data, homeDir, homeDir));
+  return compute<VM3<Map<String, Object?>, String, String>, MigrationData>(
+    _oldToNowTask,
+    VM3(data, homeDir, homeDir),
+  );
 }
 
 Future<MigrationData> _oldToNowTask(

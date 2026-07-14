@@ -187,7 +187,7 @@ final class UpdateParamsProvider
   }
 }
 
-String _$updateParamsHash() => r'012df72ab0e769a51c573f4692031506d7b1f1b4';
+String _$updateParamsHash() => r'6f471ce2a4114291cc7dc725723911764c8c3cd9';
 
 @ProviderFor(proxyState)
 final proxyStateProvider = ProxyStateProvider._();
@@ -228,7 +228,7 @@ final class ProxyStateProvider
   }
 }
 
-String _$proxyStateHash() => r'3df11daa70bd06de32da43e9b3e09a74389264b2';
+String _$proxyStateHash() => r'b4a316e7f67927d6903af702d2b4e542c11c11c8';
 
 @ProviderFor(trayState)
 final trayStateProvider = TrayStateProvider._();
