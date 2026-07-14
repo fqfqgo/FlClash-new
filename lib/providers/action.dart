@@ -373,6 +373,7 @@ class SetupAction extends _$SetupAction {
     VoidCallback? preloadInvoke,
     FutureOr Function()? onUpdated,
   }) async {
+    ref.read(profilesActionProvider.notifier).ensureCurrentProfileSelected();
     var profile = ref.read(currentProfileProvider);
     if (profile != null) {
       final nextProfile = await ref
@@ -888,6 +889,17 @@ class ProfilesAction extends _$ProfilesAction {
     ref.read(profilesProvider.notifier).put(profile);
     if (ref.read(currentProfileIdProvider) != null) return;
     ref.read(currentProfileIdProvider.notifier).value = profile.id;
+  }
+
+  /// 订阅列表在 DB 中，但 [currentProfileId] 丢失/无效时代理页会空白。
+  void ensureCurrentProfileSelected() {
+    final profiles = ref.read(profilesProvider);
+    if (profiles.isEmpty) return;
+    final currentId = ref.read(currentProfileIdProvider);
+    if (currentId != null && profiles.any((p) => p.id == currentId)) {
+      return;
+    }
+    ref.read(currentProfileIdProvider.notifier).value = profiles.first.id;
   }
 
   Future<void> updateProfiles() async {
