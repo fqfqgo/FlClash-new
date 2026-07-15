@@ -380,34 +380,34 @@ jobs:
           files: ./dist/*
           body_path: './release.md'
 
-      - name: Create Homebrew Cask Source Dir
-        if: ${{ env.IS_STABLE == 'true' }}
-        run: |
-          version=$(echo "${{ github.ref_name }}" | sed 's/^v//')
-          arm_sha=$(sha256sum "./dist/FlClash-${version}-macos-arm64.dmg" | awk '{print $1}')
-          amd_sha=$(sha256sum "./dist/FlClash-${version}-macos-amd64.dmg" | awk '{print $1}')
-
-          mkdir -p ./brew/Casks
-          sed \
-            -e "s|VERSION|$version|g" \
-            -e "s|ARM_SHA256|$arm_sha|g" \
-            -e "s|AMD_SHA256|$amd_sha|g" \
-            ./.github/homebrew_cask_template.rb > ./brew/Casks/flclash.rb
-
-      - name: Push to Homebrew tap
-        if: ${{ env.IS_STABLE == 'true' }}
-        uses: cpina/github-action-push-to-another-repository@v1.7.2
-        env:
-          SSH_DEPLOY_KEY: ${{ secrets.HOMEBREW_SSH_DEPLOY_KEY }}
-        with:
-          source-directory: ./brew/
-          destination-github-username: chen08209
-          destination-repository-name: homebrew-tap
-          user-name: 'chen08029'
-          user-email: 'chen08209@gmail.com'
-          target-branch: main
-          commit-message: Update Homebrew cask from ${{ github.ref_name }}
-          target-directory: /
+      # - name: Create Homebrew Cask Source Dir
+      #   if: ${{ env.IS_STABLE == 'true' }}
+      #   run: |
+      #     version=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+      #     arm_sha=$(sha256sum "./dist/FlClash-${version}-macos-arm64.dmg" | awk '{print $1}')
+      #     amd_sha=$(sha256sum "./dist/FlClash-${version}-macos-amd64.dmg" | awk '{print $1}')
+      #
+      #     mkdir -p ./brew/Casks
+      #     sed \
+      #       -e "s|VERSION|$version|g" \
+      #       -e "s|ARM_SHA256|$arm_sha|g" \
+      #       -e "s|AMD_SHA256|$amd_sha|g" \
+      #       ./.github/homebrew_cask_template.rb > ./brew/Casks/flclash.rb
+      #
+      # - name: Push to Homebrew tap
+      #   if: ${{ env.IS_STABLE == 'true' }}
+      #   uses: cpina/github-action-push-to-another-repository@v1.7.2
+      #   env:
+      #     SSH_DEPLOY_KEY: ${{ secrets.HOMEBREW_SSH_DEPLOY_KEY }}
+      #   with:
+      #     source-directory: ./brew/
+      #     destination-github-username: chen08209
+      #     destination-repository-name: homebrew-tap
+      #     user-name: 'chen08029'
+      #     user-email: 'chen08209@gmail.com'
+      #     target-branch: main
+      #     commit-message: Update Homebrew cask from ${{ github.ref_name }}
+      #     target-directory: /
 
       - name: Create Fdroid Source Dir
         if: ${{ env.IS_STABLE == 'true' }}
