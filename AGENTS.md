@@ -13,8 +13,7 @@ Read these files before making changes:
 
 Read these only when the task touches their area:
 
-- [.agents/architecture.md](.agents/architecture.md): core integration, providers, database, managers, build system, and
-  local plugins.
+- [.agents/fork-upstream-merge.md](.agents/fork-upstream-merge.md): **合并上游 tag 时的 fork CI/发布检查清单**（Telegram / Homebrew / F-Droid 等勿遗漏）。
 - [.agents/agent-config.md](.agents/agent-config.md): how to choose between `AGENTS.md`, `.agents`, skills, Codex config,
   command rules, and hooks.
 - [.agents/skills.md](.agents/skills.md): index of repo-scoped skills in `.agents/skills/`.

@@ -350,7 +350,8 @@ jobs:
             git log --no-merges --pretty=format:"%B" "$range" | \
             awk '!/Update changelog/ && NF {print "- " $0 "\n"}' >> "$out"
           done
-      # - name: Push to telegram
+      # FORK: 合并上游后勿恢复以下三步，缺 secret 会导致 release 失败（见 .agents/fork-upstream-merge.md）
+      # - Push to telegram
       #   continue-on-error: true
       #   env:
       #     TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -380,6 +381,7 @@ jobs:
           files: ./dist/*
           body_path: './release.md'
 
+      # FORK: Homebrew 推送需 HOMEBREW_SSH_DEPLOY_KEY，本 fork 未配置，保持注释禁用
       # - name: Create Homebrew Cask Source Dir
       #   if: ${{ env.IS_STABLE == 'true' }}
       #   run: |
@@ -416,6 +418,7 @@ jobs:
           cp ./dist/*android-arm64-v8a* ./tmp/ || true
           echo "Files copied successfully"
 
+      # FORK: F-Droid 推送指向上游仓库，保持注释禁用
       # - name: Push to fdroid repo
       #   if: ${{ env.IS_STABLE == 'true' }}
       #   uses: cpina/github-action-push-to-another-repository@v1.7.2
