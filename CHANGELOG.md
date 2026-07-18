@@ -1,3 +1,11 @@
+## v0.8.94.1
+
+- fix: fall back to TUN when system proxy fails
+
+- docs: add upstream merge checklist for fork CI steps
+
+
+
 ## v0.8.94
 
 - Fix macOS performance issue
