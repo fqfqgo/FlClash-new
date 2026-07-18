@@ -189,14 +189,14 @@ class Utils {
     final parts = normalized.split('.');
     if (parts.length == 4 &&
         parts.every((part) => int.tryParse(part) != null)) {
-      return '${parts.take(3).join('.')}+${int.parse(parts[3]) + 1}';
+      return '${parts.take(3).join('.')}+${parts[3]}';
     }
-    return '$normalized+1';
+    return '$normalized+0';
   }
 
   String packageVersion(String version, String buildNumber) {
     if (version.contains('+')) return version;
-    return '$version+${int.tryParse(buildNumber) ?? 1}';
+    return '$version+${int.tryParse(buildNumber) ?? 0}';
   }
 
   // String getPinyin(String value) {

@@ -154,10 +154,10 @@ jobs:
           tag_ver="${GITHUB_REF_NAME#v}"
           IFS='.' read -r -a parts <<< "$tag_ver"
           if [ "${#parts[@]}" -ge 4 ]; then
-            build_num=$((10#${parts[3]} + 1))
+            build_num=$((10#${parts[3]}))
             pub_ver="${parts[0]}.${parts[1]}.${parts[2]}+${build_num}"
           elif [ "${#parts[@]}" -ge 3 ]; then
-            pub_ver="${parts[0]}.${parts[1]}.${parts[2]}+1"
+            pub_ver="${parts[0]}.${parts[1]}.${parts[2]}+0"
           else
             pub_ver="${tag_ver}"
           fi

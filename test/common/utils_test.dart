@@ -128,12 +128,12 @@ void main() {
     });
 
     test('normalizes fork release tags to Flutter build versions', () {
-      expect(utils.normalizeReleaseVersion('v0.8.94'), '0.8.94+1');
-      expect(utils.normalizeReleaseVersion('v0.8.94.1'), '0.8.94+2');
+      expect(utils.normalizeReleaseVersion('v0.8.94'), '0.8.94+0');
+      expect(utils.normalizeReleaseVersion('v0.8.94.1'), '0.8.94+1');
     });
 
     test('compares a fork patch release with the installed build', () {
-      final installed = utils.packageVersion('0.8.94', '1');
+      final installed = utils.packageVersion('0.8.94', '0');
       final available = utils.normalizeReleaseVersion('v0.8.94.1');
 
       expect(utils.compareVersions(available, installed), greaterThan(0));
