@@ -183,6 +183,22 @@ class Utils {
     return build1.compareTo(build2);
   }
 
+  String normalizeReleaseVersion(String version) {
+    final normalized = version.startsWith('v') ? version.substring(1) : version;
+    if (normalized.contains('+')) return normalized;
+    final parts = normalized.split('.');
+    if (parts.length == 4 &&
+        parts.every((part) => int.tryParse(part) != null)) {
+      return '${parts.take(3).join('.')}+${int.parse(parts[3]) + 1}';
+    }
+    return '$normalized+1';
+  }
+
+  String packageVersion(String version, String buildNumber) {
+    if (version.contains('+')) return version;
+    return '$version+${int.tryParse(buildNumber) ?? 1}';
+  }
+
   // String getPinyin(String value) {
   //   return value.isNotEmpty
   //       ? PinyinHelper.getFirstWordPinyin(value.substring(0, 1))

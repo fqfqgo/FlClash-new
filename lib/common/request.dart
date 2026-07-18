@@ -78,10 +78,12 @@ class Request {
       );
       if (response.statusCode != 200) return null;
       final data = response.data as Map<String, dynamic>;
-      final remoteVersion = data['tag_name'];
-      final version = globalState.packageInfo.version;
-      final hasUpdate =
-          utils.compareVersions(remoteVersion.replaceAll('v', ''), version) > 0;
+      final remoteVersion = utils.normalizeReleaseVersion(data['tag_name']);
+      final version = utils.packageVersion(
+        globalState.packageInfo.version,
+        globalState.packageInfo.buildNumber,
+      );
+      final hasUpdate = utils.compareVersions(remoteVersion, version) > 0;
       if (!hasUpdate) return null;
       return data;
     } catch (e) {

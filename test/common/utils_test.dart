@@ -126,6 +126,18 @@ void main() {
     test('handles missing minor/patch', () {
       expect(utils.compareVersions('1', '1.0.0'), 0);
     });
+
+    test('normalizes fork release tags to Flutter build versions', () {
+      expect(utils.normalizeReleaseVersion('v0.8.94'), '0.8.94+1');
+      expect(utils.normalizeReleaseVersion('v0.8.94.1'), '0.8.94+2');
+    });
+
+    test('compares a fork patch release with the installed build', () {
+      final installed = utils.packageVersion('0.8.94', '1');
+      final available = utils.normalizeReleaseVersion('v0.8.94.1');
+
+      expect(utils.compareVersions(available, installed), greaterThan(0));
+    });
   });
 
   group('getViewMode', () {
