@@ -4,7 +4,7 @@
 
 - docs: add upstream merge checklist for fork CI steps
 
-- Co-authored-by: Cursor <cursoragent@cursor.com>
+
 
 ## v0.8.94
 
