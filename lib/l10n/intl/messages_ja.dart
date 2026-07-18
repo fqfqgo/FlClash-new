@@ -399,6 +399,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "key": MessageLookupByLibrary.simpleMessage("キー"),
     "language": MessageLookupByLibrary.simpleMessage("言語"),
+    "launchBrowser": MessageLookupByLibrary.simpleMessage("ブラウザを起動"),
+    "launchBrowserFailed": MessageLookupByLibrary.simpleMessage(
+      "ブラウザを起動できませんでした",
+    ),
     "layout": MessageLookupByLibrary.simpleMessage("レイアウト"),
     "light": MessageLookupByLibrary.simpleMessage("ライト"),
     "list": MessageLookupByLibrary.simpleMessage("リスト"),
@@ -782,22 +786,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "status": MessageLookupByLibrary.simpleMessage("ステータス"),
     "statusDesc": MessageLookupByLibrary.simpleMessage("無効時はシステムDNSを使用"),
     "stop": MessageLookupByLibrary.simpleMessage("停止"),
-    "launchBrowser": MessageLookupByLibrary.simpleMessage("ブラウザを起動"),
-    "launchBrowserFailed": MessageLookupByLibrary.simpleMessage(
-      "ブラウザの起動に失敗しました",
-    ),
     "stopVpn": MessageLookupByLibrary.simpleMessage("VPNを停止中..."),
     "style": MessageLookupByLibrary.simpleMessage("スタイル"),
     "subRule": MessageLookupByLibrary.simpleMessage("サブルール"),
     "subRuleEmpty": MessageLookupByLibrary.simpleMessage("サブルールが空です"),
     "subRuleNotEmpty": MessageLookupByLibrary.simpleMessage("サブルールは空にできません"),
+    "submit": MessageLookupByLibrary.simpleMessage("送信"),
     "subscriptionLoginPassword": MessageLookupByLibrary.simpleMessage(
       "ウェブサイトログインパスワード",
     ),
     "subscriptionLoginPasswordHint": MessageLookupByLibrary.simpleMessage(
       "暗号化された購読のみ",
     ),
-    "submit": MessageLookupByLibrary.simpleMessage("送信"),
+    "subscriptionPasswordWrongTip": MessageLookupByLibrary.simpleMessage(
+      "パスワードが正しくありません。もう一度お試しください",
+    ),
     "suspended": MessageLookupByLibrary.simpleMessage("一時停止中..."),
     "sync": MessageLookupByLibrary.simpleMessage("同期"),
     "system": MessageLookupByLibrary.simpleMessage("システム"),
@@ -805,6 +808,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("システムプロキシ"),
     "systemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "HTTPプロキシをVpnServiceに接続",
+    ),
+    "systemProxyFallbackToTun": MessageLookupByLibrary.simpleMessage(
+      "システムプロキシの設定に失敗したため、TUNモードに切り替えました。",
+    ),
+    "systemProxyFallbackToTunFailed": MessageLookupByLibrary.simpleMessage(
+      "システムプロキシの設定に失敗し、TUNに必要な権限も取得できませんでした。",
     ),
     "tab": MessageLookupByLibrary.simpleMessage("タブ"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage("タブアニメーション"),

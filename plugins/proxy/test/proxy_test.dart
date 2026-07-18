@@ -180,5 +180,36 @@ USB 10/100/1000 LAN
 
       expect(command.args, ['-setproxybypassdomains', 'Wi-Fi', 'Empty']);
     });
+
+    test('accepts enabled proxy with matching server and port', () {
+      expect(
+        Proxy.matchesMacosProxyOutputForTest('''
+Enabled: Yes
+Server: 127.0.0.1
+Port: 7890
+Authenticated Proxy Enabled: 0
+''', 7890),
+        isTrue,
+      );
+    });
+
+    test('rejects disabled or mismatched proxy settings', () {
+      expect(
+        Proxy.matchesMacosProxyOutputForTest('''
+Enabled: No
+Server: 127.0.0.1
+Port: 7890
+''', 7890),
+        isFalse,
+      );
+      expect(
+        Proxy.matchesMacosProxyOutputForTest('''
+Enabled: Yes
+Server: 127.0.0.1
+Port: 7891
+''', 7890),
+        isFalse,
+      );
+    });
   });
 }

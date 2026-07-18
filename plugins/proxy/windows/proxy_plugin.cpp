@@ -113,6 +113,40 @@ bool NotifySettingsChanged()
   return changed && refreshed;
 }
 
+bool VerifyProxy(const int port)
+{
+  std::vector<INTERNET_PER_CONN_OPTION> options(2);
+  INTERNET_PER_CONN_OPTION_LIST list = {};
+  list.dwSize = sizeof(list);
+  list.dwOptionCount = static_cast<DWORD>(options.size());
+  list.pOptions = options.data();
+
+  options[0].dwOption = INTERNET_PER_CONN_FLAGS;
+  options[1].dwOption = INTERNET_PER_CONN_PROXY_SERVER;
+
+  DWORD size = sizeof(list);
+  if (InternetQueryOption(
+          nullptr,
+          INTERNET_OPTION_PER_CONNECTION_OPTION,
+          &list,
+          &size) == FALSE)
+  {
+    return false;
+  }
+
+  const bool enabled =
+      (options[0].Value.dwValue & PROXY_TYPE_PROXY) == PROXY_TYPE_PROXY;
+  const auto expected = Utf8ToWide("127.0.0.1:" + std::to_string(port));
+  const bool serverMatches =
+      options[1].Value.pszValue != nullptr &&
+      _wcsicmp(options[1].Value.pszValue, expected.c_str()) == 0;
+  if (options[1].Value.pszValue != nullptr)
+  {
+    GlobalFree(options[1].Value.pszValue);
+  }
+  return enabled && serverMatches;
+}
+
 bool startProxy(const int port, const flutter::EncodableList& bypassDomain)
 {
   auto url = Utf8ToWide("127.0.0.1:" + std::to_string(port));
@@ -133,7 +167,9 @@ bool startProxy(const int port, const flutter::EncodableList& bypassDomain)
   options[2].dwOption = INTERNET_PER_CONN_PROXY_BYPASS;
   options[2].Value.pszValue = bypassList.data();
 
-  return ApplyOptionsToConnections(list) && NotifySettingsChanged();
+  return ApplyOptionsToConnections(list) &&
+      NotifySettingsChanged() &&
+      VerifyProxy(port);
 }
 
 bool stopProxy()

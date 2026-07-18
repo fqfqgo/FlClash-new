@@ -74,16 +74,29 @@ class Proxy extends ProxyPlatform {
     if (homeDir == null || homeDir.isEmpty) {
       return false;
     }
-    final commands = await _resolveLinuxStartCommands(
-      port,
-      bypassDomain,
-      desktop: Platform.environment['XDG_CURRENT_DESKTOP'],
-      homeDir: homeDir,
-    );
-    if (commands.isEmpty) {
+    final desktop = Platform.environment['XDG_CURRENT_DESKTOP'];
+    final backend = await _resolveLinuxBackend(desktop);
+    if (backend == null) {
       return false;
     }
-    return _runCommands(commands);
+    final configWriter = await _resolveKdeConfigWriter();
+    final commands = _buildLinuxStartCommands(
+      port: port,
+      bypassDomain: bypassDomain,
+      desktop: desktop,
+      homeDir: homeDir,
+      backend: backend,
+      kdeConfigWriter: configWriter,
+    );
+    if (!await _runCommands(commands)) {
+      return false;
+    }
+    return _verifyLinuxProxy(
+      port,
+      backend: backend,
+      configWriter: configWriter,
+      homeDir: homeDir,
+    );
   }
 
   Future<bool> _stopProxyWithLinux() async {
@@ -103,6 +116,9 @@ class Proxy extends ProxyPlatform {
 
   Future<bool> _startProxyWithMacos(int port, List<String> bypassDomain) async {
     final devices = await _getNetworkDeviceListWithMacos();
+    if (devices.isEmpty) {
+      return false;
+    }
     final commands = devices.expand(
       (dev) => _buildMacosStartCommands(
         dev,
@@ -110,7 +126,26 @@ class Proxy extends ProxyPlatform {
         bypassDomain,
       ),
     );
-    return _runCommands(commands);
+    if (!await _runCommands(commands)) {
+      return false;
+    }
+    for (final device in devices) {
+      for (final type in const [
+        '-getwebproxy',
+        '-getsecurewebproxy',
+        '-getsocksfirewallproxy',
+      ]) {
+        final result = await _processRunner(
+          '/usr/sbin/networksetup',
+          [type, device],
+        );
+        if (result.exitCode != 0 ||
+            !_matchesMacosProxyOutput(result.stdout.toString(), port)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   Future<bool> _stopProxyWithMacos() async {
@@ -148,24 +183,116 @@ class Proxy extends ProxyPlatform {
     }
   }
 
-  Future<List<ProxyCommand>> _resolveLinuxStartCommands(
-    int port,
-    List<String> bypassDomain, {
-    required String? desktop,
+  Future<bool> _verifyLinuxProxy(
+    int port, {
+    required LinuxProxyBackend backend,
+    required String configWriter,
     required String homeDir,
   }) async {
-    final backend = await _resolveLinuxBackend(desktop);
-    if (backend == null) {
-      return [];
+    if (backend == LinuxProxyBackend.kde) {
+      final reader = configWriter.replaceFirst('kwriteconfig', 'kreadconfig');
+      if (!await _executableChecker(reader)) {
+        return false;
+      }
+      final file = join(homeDir, '.config', 'kioslaverc');
+      if (!await _commandOutputEquals(
+          reader,
+          [
+            '--file',
+            file,
+            '--group',
+            'Proxy Settings',
+            '--key',
+            'ProxyType',
+          ],
+          '1')) {
+        return false;
+      }
+      for (final type in ProxyTypes.values) {
+        if (!await _commandOutputEquals(
+            reader,
+            [
+              '--file',
+              file,
+              '--group',
+              'Proxy Settings',
+              '--key',
+              '${type.name}Proxy',
+            ],
+            '${type.name}://$url:$port')) {
+          return false;
+        }
+      }
+      return true;
     }
-    return _buildLinuxStartCommands(
-      port: port,
-      bypassDomain: bypassDomain,
-      desktop: desktop,
-      homeDir: homeDir,
-      backend: backend,
-      kdeConfigWriter: await _resolveKdeConfigWriter(),
-    );
+
+    final schemaPrefix = backend == LinuxProxyBackend.mate
+        ? 'org.mate.system.proxy'
+        : 'org.gnome.system.proxy';
+    if (!await _commandOutputEquals(
+      'gsettings',
+      ['get', schemaPrefix, 'mode'],
+      'manual',
+    )) {
+      return false;
+    }
+    for (final type in ProxyTypes.values) {
+      final schema = '$schemaPrefix.${type.name}';
+      if (!await _commandOutputEquals(
+            'gsettings',
+            ['get', schema, 'host'],
+            url,
+          ) ||
+          !await _commandOutputEquals(
+            'gsettings',
+            ['get', schema, 'port'],
+            '$port',
+          )) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<bool> _commandOutputEquals(
+    String executable,
+    List<String> arguments,
+    String expected,
+  ) async {
+    try {
+      final result = await _processRunner(executable, arguments);
+      if (result.exitCode != 0) {
+        return false;
+      }
+      return _normalizeCommandOutput(result.stdout.toString()) == expected;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static String _normalizeCommandOutput(String output) {
+    final value = output.trim();
+    if (value.length >= 2 &&
+        ((value.startsWith("'") && value.endsWith("'")) ||
+            (value.startsWith('"') && value.endsWith('"')))) {
+      return value.substring(1, value.length - 1);
+    }
+    return value;
+  }
+
+  static bool _matchesMacosProxyOutput(String output, int port) {
+    final values = <String, String>{};
+    for (final line in output.split('\n')) {
+      final separator = line.indexOf(':');
+      if (separator <= 0) {
+        continue;
+      }
+      values[line.substring(0, separator).trim().toLowerCase()] =
+          line.substring(separator + 1).trim();
+    }
+    return values['enabled']?.toLowerCase() == 'yes' &&
+        values['server'] == url &&
+        values['port'] == '$port';
   }
 
   Future<List<ProxyCommand>> _resolveLinuxStopCommands({
@@ -607,5 +734,10 @@ class Proxy extends ProxyPlatform {
     List<String> bypassDomain,
   ) {
     return _buildMacosProxyBypassCommand(dev, bypassDomain);
+  }
+
+  @visibleForTesting
+  static bool matchesMacosProxyOutputForTest(String output, int port) {
+    return _matchesMacosProxyOutput(output, port);
   }
 }

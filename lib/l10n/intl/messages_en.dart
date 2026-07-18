@@ -509,6 +509,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "key": MessageLookupByLibrary.simpleMessage("Key"),
     "language": MessageLookupByLibrary.simpleMessage("Language"),
+    "launchBrowser": MessageLookupByLibrary.simpleMessage("Launch browser"),
+    "launchBrowserFailed": MessageLookupByLibrary.simpleMessage(
+      "Failed to launch browser",
+    ),
     "layout": MessageLookupByLibrary.simpleMessage("Layout"),
     "light": MessageLookupByLibrary.simpleMessage("Light"),
     "list": MessageLookupByLibrary.simpleMessage("List"),
@@ -964,10 +968,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "System DNS will be used when turned off",
     ),
     "stop": MessageLookupByLibrary.simpleMessage("Stop"),
-    "launchBrowser": MessageLookupByLibrary.simpleMessage("Launch browser"),
-    "launchBrowserFailed": MessageLookupByLibrary.simpleMessage(
-      "Launch browser failed",
-    ),
     "stopVpn": MessageLookupByLibrary.simpleMessage("Stopping VPN..."),
     "style": MessageLookupByLibrary.simpleMessage("Style"),
     "subRule": MessageLookupByLibrary.simpleMessage("Sub rule"),
@@ -975,13 +975,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "subRuleNotEmpty": MessageLookupByLibrary.simpleMessage(
       "Sub rule cannot be empty",
     ),
+    "submit": MessageLookupByLibrary.simpleMessage("Submit"),
     "subscriptionLoginPassword": MessageLookupByLibrary.simpleMessage(
       "Website login password",
     ),
     "subscriptionLoginPasswordHint": MessageLookupByLibrary.simpleMessage(
       "For encrypted subscriptions only",
     ),
-    "submit": MessageLookupByLibrary.simpleMessage("Submit"),
+    "subscriptionPasswordWrongTip": MessageLookupByLibrary.simpleMessage(
+      "Incorrect password, please try again",
+    ),
     "suspended": MessageLookupByLibrary.simpleMessage("Suspended..."),
     "sync": MessageLookupByLibrary.simpleMessage("Sync"),
     "system": MessageLookupByLibrary.simpleMessage("System"),
@@ -989,6 +992,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("System proxy"),
     "systemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "Attach HTTP proxy to VpnService",
+    ),
+    "systemProxyFallbackToTun": MessageLookupByLibrary.simpleMessage(
+      "System proxy setup failed. Switched to TUN mode.",
+    ),
+    "systemProxyFallbackToTunFailed": MessageLookupByLibrary.simpleMessage(
+      "System proxy setup failed, and TUN authorization was not granted.",
     ),
     "tab": MessageLookupByLibrary.simpleMessage("Tab"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage("Tab animation"),

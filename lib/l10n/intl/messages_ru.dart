@@ -528,6 +528,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "key": MessageLookupByLibrary.simpleMessage("Ключ"),
     "language": MessageLookupByLibrary.simpleMessage("Язык"),
+    "launchBrowser": MessageLookupByLibrary.simpleMessage("Запустить браузер"),
+    "launchBrowserFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось запустить браузер",
+    ),
     "layout": MessageLookupByLibrary.simpleMessage("Макет"),
     "light": MessageLookupByLibrary.simpleMessage("Светлый"),
     "list": MessageLookupByLibrary.simpleMessage("Список"),
@@ -1015,10 +1019,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "Системный DNS будет использоваться при выключении",
     ),
     "stop": MessageLookupByLibrary.simpleMessage("Стоп"),
-    "launchBrowser": MessageLookupByLibrary.simpleMessage("Запустить браузер"),
-    "launchBrowserFailed": MessageLookupByLibrary.simpleMessage(
-      "Не удалось запустить браузер",
-    ),
     "stopVpn": MessageLookupByLibrary.simpleMessage("Остановка VPN..."),
     "style": MessageLookupByLibrary.simpleMessage("Стиль"),
     "subRule": MessageLookupByLibrary.simpleMessage("Подправило"),
@@ -1026,13 +1026,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "subRuleNotEmpty": MessageLookupByLibrary.simpleMessage(
       "Подправило не может быть пустым",
     ),
+    "submit": MessageLookupByLibrary.simpleMessage("Отправить"),
     "subscriptionLoginPassword": MessageLookupByLibrary.simpleMessage(
       "Пароль входа на сайт",
     ),
     "subscriptionLoginPasswordHint": MessageLookupByLibrary.simpleMessage(
       "Только для зашифрованных подписок",
     ),
-    "submit": MessageLookupByLibrary.simpleMessage("Отправить"),
+    "subscriptionPasswordWrongTip": MessageLookupByLibrary.simpleMessage(
+      "Неверный пароль, попробуйте снова",
+    ),
     "suspended": MessageLookupByLibrary.simpleMessage("Приостановлено..."),
     "sync": MessageLookupByLibrary.simpleMessage("Синхронизация"),
     "system": MessageLookupByLibrary.simpleMessage("Система"),
@@ -1040,6 +1043,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("Системный прокси"),
     "systemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "Прикрепить HTTP-прокси к VpnService",
+    ),
+    "systemProxyFallbackToTun": MessageLookupByLibrary.simpleMessage(
+      "Не удалось настроить системный прокси. Выполнено переключение в режим TUN.",
+    ),
+    "systemProxyFallbackToTunFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось настроить системный прокси и получить разрешение для TUN.",
     ),
     "tab": MessageLookupByLibrary.simpleMessage("Вкладка"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage("Анимация вкладок"),

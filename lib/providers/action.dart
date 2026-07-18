@@ -114,6 +114,7 @@ class CommonAction extends _$CommonAction {
 @Riverpod(keepAlive: true)
 class SetupAction extends _$SetupAction {
   Timer? _updateTimer;
+  Future<void>? _systemProxyFallback;
   DateTime? startTime;
 
   bool get isStart => startTime != null && startTime!.isBeforeNow;
@@ -245,6 +246,58 @@ class SetupAction extends _$SetupAction {
     debouncer.call(FunctionTag.applyProfile, (silence, force) {
       applyProfile(silence: silence, force: force);
     }, args: [silence, force]);
+  }
+
+  Future<void> fallbackToTunFromSystemProxyFailure() async {
+    if (_systemProxyFallback != null) {
+      await _systemProxyFallback;
+      return;
+    }
+    final operation = _fallbackToTunFromSystemProxyFailure();
+    _systemProxyFallback = operation;
+    try {
+      await operation;
+    } finally {
+      if (identical(_systemProxyFallback, operation)) {
+        _systemProxyFallback = null;
+      }
+    }
+  }
+
+  Future<void> _fallbackToTunFromSystemProxyFailure() async {
+    if (!system.isDesktop ||
+        !ref.read(isStartProvider) ||
+        !ref.read(networkSettingProvider).systemProxy ||
+        ref.read(patchClashConfigProvider).tun.enable) {
+      return;
+    }
+
+    ref
+        .read(networkSettingProvider.notifier)
+        .update((state) => state.copyWith(systemProxy: false));
+    ref
+        .read(patchClashConfigProvider.notifier)
+        .update((state) => state.copyWith.tun(enable: true));
+    debouncer.cancel(FunctionTag.applyProfile);
+    debouncer.cancel(FunctionTag.updateConfig);
+
+    final result = await ref
+        .read(coreActionProvider.notifier)
+        .requestAdmin(true);
+    if (result.isSuccess && result.data != true) {
+      ref
+          .read(patchClashConfigProvider.notifier)
+          .update((state) => state.copyWith.tun(enable: false));
+      ref.read(realTunEnableProvider.notifier).value = false;
+      globalState.showNotifier(
+        currentAppLocalizations.systemProxyFallbackToTunFailed,
+      );
+      return;
+    }
+    if (result.isSuccess && ref.read(isStartProvider)) {
+      await applyProfile(force: true, silence: true);
+    }
+    globalState.showNotifier(currentAppLocalizations.systemProxyFallbackToTun);
   }
 
   void changeMode(Mode mode) {

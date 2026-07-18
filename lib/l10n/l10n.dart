@@ -784,6 +784,46 @@ class AppLocalizations {
     );
   }
 
+  /// `System proxy setup failed. Switched to TUN mode.`
+  String get systemProxyFallbackToTun {
+    return Intl.message(
+      'System proxy setup failed. Switched to TUN mode.',
+      name: 'systemProxyFallbackToTun',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `System proxy setup failed, and TUN authorization was not granted.`
+  String get systemProxyFallbackToTunFailed {
+    return Intl.message(
+      'System proxy setup failed, and TUN authorization was not granted.',
+      name: 'systemProxyFallbackToTunFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Launch browser`
+  String get launchBrowser {
+    return Intl.message(
+      'Launch browser',
+      name: 'launchBrowser',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to launch browser`
+  String get launchBrowserFailed {
+    return Intl.message(
+      'Failed to launch browser',
+      name: 'launchBrowserFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Project`
   String get project {
     return Intl.message('Project', name: 'project', desc: '', args: []);
@@ -1507,46 +1547,6 @@ class AppLocalizations {
   /// `Stop`
   String get stop {
     return Intl.message('Stop', name: 'stop', desc: '', args: []);
-  }
-
-  /// `Launch browser`
-  String get launchBrowser {
-    return Intl.message(
-      'Launch browser',
-      name: 'launchBrowser',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Launch browser failed`
-  String get launchBrowserFailed {
-    return Intl.message(
-      'Launch browser failed',
-      name: 'launchBrowserFailed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Processing app related settings`
-  String get appDesc {
-    return Intl.message(
-      'Processing app related settings',
-      name: 'appDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Modify VPN related settings`
-  String get vpnDesc {
-    return Intl.message(
-      'Modify VPN related settings',
-      name: 'vpnDesc',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `Update DNS related settings`
