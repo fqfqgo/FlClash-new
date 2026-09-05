@@ -97,7 +97,11 @@ class CoreService extends CoreHandlerInterface {
       }
     }
     try {
-      _process = await Process.start(appPath.corePath, [_transport.address]);
+      _process = await Process.start(
+        appPath.corePath,
+        [_transport.address],
+        environment: {if (!system.isWindows) 'TMPDIR': unixIpcDir.path},
+      );
     } catch (e) {
       commonPrint.log(
         'Failed to start core process: $e',

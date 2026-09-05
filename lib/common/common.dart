@@ -45,6 +45,7 @@ export 'system.dart';
 export 'task.dart';
 export 'text.dart';
 export 'tray.dart';
+export 'unix_ipc.dart';
 export 'utils.dart';
 export 'window.dart';
 export 'yaml.dart';
