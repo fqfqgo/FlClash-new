@@ -239,9 +239,6 @@ class _WindowHeaderState extends State<WindowHeader> {
           },
           icon: const Icon(Icons.close),
         ),
-        // const SizedBox(
-        //   width: 8,
-        // ),
       ],
     );
   }

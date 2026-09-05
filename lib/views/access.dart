@@ -313,7 +313,7 @@ class _AccessViewState extends ConsumerState<AccessView> {
       builder: (context, snapshot) {
         final appLocalizations = context.appLocalizations;
         if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CommonCircleLoading());
         }
         return packages.isEmpty
             ? NullStatus(label: appLocalizations.noData)
@@ -454,25 +454,7 @@ class PackageListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListItem.checkbox(
-      leading: SizedBox(
-        width: 48,
-        height: 48,
-        child: FutureBuilder<ImageProvider?>(
-          future: app?.getPackageIcon(package.packageName),
-          builder: (_, snapshot) {
-            if (!snapshot.hasData && snapshot.data == null) {
-              return Container();
-            } else {
-              return Image(
-                image: snapshot.data!,
-                gaplessPlayback: true,
-                width: 48,
-                height: 48,
-              );
-            }
-          },
-        ),
-      ),
+      leading: PackageIcon(packageName: package.packageName, size: 48),
       title: Text(
         package.label,
         style: const TextStyle(overflow: TextOverflow.ellipsis),
@@ -483,7 +465,8 @@ class PackageListItem extends StatelessWidget {
         style: const TextStyle(overflow: TextOverflow.ellipsis),
         maxLines: 1,
       ),
-      delegate: CheckboxDelegate(value: value, onChanged: onChanged),
+      value: value,
+      onChanged: onChanged,
     );
   }
 }

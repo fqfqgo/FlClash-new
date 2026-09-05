@@ -20,9 +20,24 @@ Read these only when the task touches their area:
 
 ## Highest Priority Rules
 
+- When the user explicitly requests a scoped, low-risk change, inspect the relevant context and implement it directly.
+  Do not require brainstorming, design documents, implementation plans, multiple-option proposals, or repeated confirmation.
+  Ask only when material ambiguity, destructive impact, additional authority, or scope expansion could change the result.
+- Do not add code or configuration comments unless the user explicitly asks for comments. This includes explanatory,
+  narrative, TODO, and documentation comments. Never annotate line by line; comments belong only at the few key points
+  that cannot be understood without one, and there you must propose the exact text and wait for approval. Delete
+  commented-out code and stale notes whenever you touch the surrounding code. Put assertable behavior in a test,
+  repository-wide invariants in `.agents/`, and keep a comment only for a fact that is local to one call site.
+  See [.agents/rules.md](.agents/rules.md) for the full policy.
 - Use `flutter test`, not `dart test`, because models pull in Flutter types.
 - Run code generation after modifying models, providers, or database schema.
 - Do not manually edit generated files.
+- Preserve lifecycle ownership: desktop Core process convergence belongs to `lib/core/desktop/`; Android service intent
+  arbitration belongs to `ServiceState`. UI/provider code may request a transition but must not become a second source of
+  truth.
+- Keep start/stop/restart paths latest-intent-safe. Flutter-to-Android service commands are deliberately optimistic, while
+  native state serializes the actual work; desktop lifecycle results distinguish applied, coalesced, and superseded
+  requests.
 - Follow `analysis_options.yaml`, especially single quotes, trailing commas, `child:` last, no `print()`, const/final
   preferences, and declared return types.
 - For CI parity, verify with `flutter pub get`, `flutter analyze --no-fatal-infos`, and

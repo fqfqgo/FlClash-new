@@ -76,8 +76,8 @@ devtools_options.yaml
 # FVM Version Cache
 .fvm/
 .fvmrc
-
 # Local debug artifacts
 /run_*_logs/
 /run_*_logs.zip
 env.json
+/coverage/lcov.info

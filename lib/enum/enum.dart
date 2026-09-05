@@ -159,10 +159,6 @@ enum RestoreOption { all, onlyProfiles }
 enum ChipType { action, delete }
 
 enum CommonCardType { plain, filled }
-//
-// extension CommonCardTypeExt on CommonCardType {
-//   CommonCardType get variant => CommonCardType.plain;
-// }
 
 enum ProxiesType { tab, list }
 
@@ -232,58 +228,13 @@ enum FontFamily {
 
 enum RouteMode { bypassPrivate, config }
 
-enum ActionMethod {
-  message,
-  initClash,
-  getIsInit,
-  forceGc,
-  shutdown,
-  validateConfig,
-  updateConfig,
-  getConfig,
-  getProxies,
-  changeProxy,
-  getTraffic,
-  getTotalTraffic,
-  resetTraffic,
-  asyncTestDelay,
-  getConnections,
-  closeConnections,
-  resetConnections,
-  closeConnection,
-  getExternalProviders,
-  getExternalProvider,
-  updateGeoData,
-  updateExternalProvider,
-  sideLoadExternalProvider,
-  startLog,
-  stopLog,
-  startListener,
-  stopListener,
-  getCountryCode,
-  getMemory,
-  crash,
-  setupConfig,
-  deleteFile,
-
-  ///Android,
-  setState,
-  startTun,
-  stopTun,
-  getRunTime,
-  updateDns,
-  getAndroidVpnOptions,
-  getCurrentProfileName,
-}
-
 enum AuthorizeCode { none, success, error }
 
-enum WindowsHelperServiceStatus { none, presence, running }
+enum TunAuthorizationState { none, authorized, unauthorized }
 
 enum FunctionTag {
   updateConfig,
   setupConfig,
-  updateStatus,
   updateGroups,
   addCheckIpNum,
   applyProfile,
@@ -349,9 +300,9 @@ enum GeoResource {
   MMDB,
   @JsonValue('asn')
   ASN,
-  @JsonValue('geo-ip')
+  @JsonValue('geoip')
   GEOIP,
-  @JsonValue('geo-site')
+  @JsonValue('geosite')
   GEOSITE;
 
   static GeoResource fromJson(String value) {
@@ -366,12 +317,12 @@ enum GeoResource {
 }
 
 extension GeoResourceExt on GeoResource {
-  String get value {
+  String get configKey {
     return switch (this) {
       GeoResource.MMDB => 'mmdb',
       GeoResource.ASN => 'asn',
-      GeoResource.GEOIP => 'geo-ip',
-      GeoResource.GEOSITE => 'geo-site',
+      GeoResource.GEOIP => 'geoip',
+      GeoResource.GEOSITE => 'geosite',
     };
   }
 
@@ -496,12 +447,7 @@ extension RuleActionExt on RuleAction {
 
 enum OverrideRuleType { override, added }
 
-enum OverwriteType {
-  // none,
-  standard,
-  script,
-  custom,
-}
+enum OverwriteType { standard, script, custom }
 
 enum RuleTarget {
   DIRECT,
@@ -509,13 +455,6 @@ enum RuleTarget {
 
   static Set<String> get baseTargets =>
       RuleTarget.values.map((item) => item.name).toSet();
-
-  // static bool isBaseRuleTarget(String? target) {
-  //   return RuleTarget.values.indexWhere(
-  //         (item) => item.name == target?.toUpperCase(),
-  //       ) !=
-  //       -1;
-  // }
 }
 
 enum RestoreStrategy { compatible, override }

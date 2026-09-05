@@ -70,12 +70,10 @@ class OutboundMode extends StatelessWidget {
                                 left: 12.ap,
                                 right: 16.ap,
                               ),
-                              delegate: RadioDelegate(
-                                onTab: () {
-                                  _handleChangeMode(item);
-                                },
-                                value: item,
-                              ),
+                              onTap: () {
+                                _handleChangeMode(item);
+                              },
+                              value: item,
                               title: Text(
                                 Intl.message(item.name),
                                 style: Theme.of(
@@ -181,18 +179,6 @@ class OutboundModeV2 extends StatelessWidget {
                       height: 8.ap,
                       width: constraints.maxWidth,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      // child: Row(
-                      //   children: [
-                      //     Container(
-                      //       width: (constraints.maxWidth - 32) / 3,
-                      //       height: 3,
-                      //       decoration: BoxDecoration(
-                      //         color: _getTextColor(context, mode),
-                      //         borderRadius: BorderRadius.circular(2),
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
                     ),
                   ],
                 );

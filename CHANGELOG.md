@@ -1,3 +1,29 @@
+## v0.8.96
+
+- Optimize commented policy
+
+- Fix whole group delay test failing on Windows
+
+- Optimize package icon loading and connections polling
+
+## v0.8.95
+
+- Optimize core service
+
+- Optimize Android TV launcher icon
+
+- Optimize back navigation
+
+- Optimize more details
+
+- Fix some issues
+
+- Optimize app layout
+
+- Optimize focus control
+
+- Adjust Android process
+
 ## v0.8.94.1
 
 - fix: fall back to TUN when system proxy fails

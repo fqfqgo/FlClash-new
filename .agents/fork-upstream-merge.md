@@ -49,6 +49,13 @@
 - `android/app/build.gradle.kts`：`applicationId = "com.go.class"`
 - 加密订阅、`LaunchBrowserButton`、DB 幂等迁移、`appDisplayVersion` 等
 
+### v0.8.96 架构迁移位置
+
+- `ProfilesAction` 和 `SetupAction` 已拆到 `lib/providers/actions/`；加密订阅交互、当前订阅兜底、空配置拒绝及系统代理失败回退 TUN 必须在拆分文件中保留。
+- 桌面 core 启动已拆到 `lib/core/desktop/`；Unix socket 必须继续使用 `unix_ipc.dart` 选择可写目录，并将该目录作为 `TMPDIR` 传给直接启动的 core。
+- Linux/macOS 系统代理实现已拆到 `plugins/proxy/lib/src/`；设置后的读回验证必须随实现迁移，Windows 继续在原生插件中验证。
+- `lib/views/dashboard/widgets/start_button_base.dart` 与 `start_button_upstream.dart` 只是未引用的旧备份，已删除，避免非 UTF-8 内容阻塞代码生成。
+
 ## 合并后建议
 
 ```bash
