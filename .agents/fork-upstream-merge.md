@@ -21,7 +21,7 @@
 - Android 签名：`SERVICE_JSON` 支持 base64 或原始 JSON，并校验 JSON
 - `Set version from tag`、APK 兜底收集、`if-no-files-found: error` 等 fork 构建加固
 - **不要**恢复推送到 `chen08209` 的 Telegram / Homebrew / F-Droid
-- Windows 安装包：`SetupIconFile` / 中文 `MessagesFile` 必须是 `.iss` 所在目录（`dist/`）内的文件名，或绝对路径。不要用 `..\windows\...`——Inno Setup 6.7.1 在 Actions 上会报找不到路径。`setup.dart` 在 Windows 打包前把 `app_icon.ico` 和 `ChineseSimplified.isl` 拷进 `dist/`，`make_config.yaml` 只写文件名（与上游 `.iss` 模板写法一致）
+- Windows 安装包：Inno Setup 6.7.1 在 Actions 上按**进程 CWD（仓库根）**解析 `SetupIconFile`/`MessagesFile`，不是按 `.iss` 所在的 `dist/`。`setup.dart` 先把 `app_icon.ico` 与 `ChineseSimplified.isl` 拷进 `dist/`，`make_config.yaml` 使用正斜杠路径 `dist/app_icon.ico`（不要用反斜杠：`dist\app_...` 里的 `\a` 会被当成转义）
 
 ## 必查：发布版本与应用内更新
 
