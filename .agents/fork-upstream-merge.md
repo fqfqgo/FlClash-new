@@ -21,7 +21,7 @@
 - Android 签名：`SERVICE_JSON` 支持 base64 或原始 JSON，并校验 JSON
 - `Set version from tag`、APK 兜底收集、`if-no-files-found: error` 等 fork 构建加固
 - **不要**恢复推送到 `chen08209` 的 Telegram / Homebrew / F-Droid
-- `windows/packaging/exe/make_config.yaml` 的图标/语言文件路径必须用正斜杠（`../windows/...`），不能用反斜杠。GitHub Actions 工作区是 `D:\a\...`，Inno Setup 6.7.1 会把路径里的 `\a`、`\resources` 的 `\r` 当成转义，报 `The filename, directory name, or volume label syntax is incorrect`
+- Windows 安装包：`SetupIconFile` / 中文 `MessagesFile` 必须是 `.iss` 所在目录（`dist/`）内的文件名，或绝对路径。不要用 `..\windows\...`——Inno Setup 6.7.1 在 Actions 上会报找不到路径。`setup.dart` 在 Windows 打包前把 `app_icon.ico` 和 `ChineseSimplified.isl` 拷进 `dist/`，`make_config.yaml` 只写文件名（与上游 `.iss` 模板写法一致）
 
 ## 必查：发布版本与应用内更新
 

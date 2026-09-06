@@ -155,6 +155,17 @@ Future<int> _package(
   final depExit = await _ensureDependencies(platform, arch);
   if (depExit != 0) return depExit;
 
+  if (platform == 'windows') {
+    final distDir = Directory(p.join(rootDir, 'dist'));
+    distDir.createSync(recursive: true);
+    await File(
+      p.join(rootDir, 'windows', 'runner', 'resources', 'app_icon.ico'),
+    ).copy(p.join(distDir.path, 'app_icon.ico'));
+    await File(
+      p.join(rootDir, 'windows', 'packaging', 'exe', 'ChineseSimplified.isl'),
+    ).copy(p.join(distDir.path, 'ChineseSimplified.isl'));
+  }
+
   final activateResult = await Process.run('dart', [
     'pub',
     'global',
