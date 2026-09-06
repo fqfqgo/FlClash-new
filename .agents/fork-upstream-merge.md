@@ -21,7 +21,7 @@
 - Android 签名：`SERVICE_JSON` 支持 base64 或原始 JSON，并校验 JSON
 - `Set version from tag`、APK 兜底收集、`if-no-files-found: error` 等 fork 构建加固
 - **不要**恢复推送到 `chen08209` 的 Telegram / Homebrew / F-Droid
-- `windows/packaging/exe/inno_setup.iss` 的仓库资源路径必须基于 `{#SourcePath}`，否则新版 Inno Setup 从 `dist/*.iss` 编译时可能找不到图标或语言文件
+- `windows/packaging/exe/inno_setup.iss` 的仓库资源路径必须使用 `{#AddBackslash(SourcePath) + "相对路径"}`，不能直接在 `{#SourcePath}` 后拼接反斜杠；Inno Setup 6.7.1 会将后者判定为非法文件名
 
 ## 必查：发布版本与应用内更新
 
