@@ -21,7 +21,7 @@
 - Android 签名：`SERVICE_JSON` 支持 base64 或原始 JSON，并校验 JSON
 - `Set version from tag`、APK 兜底收集、`if-no-files-found: error` 等 fork 构建加固
 - **不要**恢复推送到 `chen08209` 的 Telegram / Homebrew / F-Droid
-- `windows/packaging/exe/inno_setup.iss` 中 `SetupIconFile` 与中文 `MessagesFile` 必须以 `{#AddBackslash(SourcePath)}` 前缀把 `make_config.yaml` 里的 `..\windows\...` 变成绝对路径。Inno Setup 6.7.1 不再按 `.iss` 所在目录（`dist/`）解析这两个指令的相对路径，上游写法会报找不到路径；`AddBackslash` 可避免拼出 `dist\\..` 这类被判为非法文件名的双反斜杠
+- `windows/packaging/exe/make_config.yaml` 的图标/语言文件路径必须用正斜杠（`../windows/...`），不能用反斜杠。GitHub Actions 工作区是 `D:\a\...`，Inno Setup 6.7.1 会把路径里的 `\a`、`\resources` 的 `\r` 当成转义，报 `The filename, directory name, or volume label syntax is incorrect`
 
 ## 必查：发布版本与应用内更新
 
