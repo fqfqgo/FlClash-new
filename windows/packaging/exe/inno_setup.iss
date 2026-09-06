@@ -1,3 +1,4 @@
+#define RepoRoot AddBackslash(ExtractFilePath(RemoveBackslash(SourcePath)))
 [Setup]
 AppId={{APP_ID}}
 AppVersion={{APP_VERSION}}
@@ -12,7 +13,7 @@ OutputDir=.
 OutputBaseFilename={{OUTPUT_BASE_FILENAME}}
 Compression=lzma
 SolidCompression=yes
-SetupIconFile={#AddBackslash(SourcePath) + "{{SETUP_ICON_FILE}}"}
+SetupIconFile={#RepoRoot}{{SETUP_ICON_FILE}}
 WizardStyle=modern
 PrivilegesRequired={{PRIVILEGES_REQUIRED}}
 ArchitecturesAllowed={{ARCH}}
@@ -66,7 +67,7 @@ end;
 {% if locale.lang == 'bg' %}Name: "bulgarian"; MessagesFile: "compiler:Languages\\Bulgarian.isl"{% endif %}
 {% if locale.lang == 'ca' %}Name: "catalan"; MessagesFile: "compiler:Languages\\Catalan.isl"{% endif %}
 {% if locale.lang == 'zh' %}
-Name: "chineseSimplified"; MessagesFile: {% if locale.file %}"{#AddBackslash(SourcePath) + "{{ locale.file }}"}"{% else %}"compiler:Languages\\ChineseSimplified.isl"{% endif %}
+Name: "chineseSimplified"; MessagesFile: {% if locale.file %}"{#RepoRoot}{{ locale.file }}"{% else %}"compiler:Languages\\ChineseSimplified.isl"{% endif %}
 {% endif %}
 {% if locale.lang == 'co' %}Name: "corsican"; MessagesFile: "compiler:Languages\\Corsican.isl"{% endif %}
 {% if locale.lang == 'cs' %}Name: "czech"; MessagesFile: "compiler:Languages\\Czech.isl"{% endif %}
