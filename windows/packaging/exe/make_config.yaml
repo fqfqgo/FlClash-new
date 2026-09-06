@@ -9,6 +9,6 @@ output_base_file_name: FlClash.exe
 setup_icon_file: dist/app_icon.ico
 locales:
   - lang: zh
-    file: dist/ChineseSimplified.isl
+    file: ChineseSimplified.isl
   - lang: en
 privileges_required: admin
