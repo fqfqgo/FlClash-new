@@ -17,8 +17,8 @@ class LinuxProxy {
   LinuxProxy({
     required ProxyCommandRunner commandRunner,
     ProxyExecutableChecker? executableChecker,
-  })  : _commandRunner = commandRunner,
-        _executableChecker = executableChecker ?? _hasExecutable;
+  }) : _commandRunner = commandRunner,
+       _executableChecker = executableChecker ?? _hasExecutable;
 
   Future<bool> start(
     int port,
@@ -113,31 +113,25 @@ class LinuxProxy {
       );
       if (!await _executableChecker(reader)) return false;
       final file = path.join(homeDir, '.config', 'kioslaverc');
-      if (!await _outputEquals(
-          reader,
-          [
-            '--file',
-            file,
-            '--group',
-            'Proxy Settings',
-            '--key',
-            'ProxyType',
-          ],
-          '1')) {
+      if (!await _outputEquals(reader, [
+        '--file',
+        file,
+        '--group',
+        'Proxy Settings',
+        '--key',
+        'ProxyType',
+      ], '1')) {
         return false;
       }
       for (final type in _ProxyType.values) {
-        if (!await _outputEquals(
-            reader,
-            [
-              '--file',
-              file,
-              '--group',
-              'Proxy Settings',
-              '--key',
-              '${type.name}Proxy',
-            ],
-            '${type.name}://$proxyHost:$port')) {
+        if (!await _outputEquals(reader, [
+          '--file',
+          file,
+          '--group',
+          'Proxy Settings',
+          '--key',
+          '${type.name}Proxy',
+        ], '${type.name}://$proxyHost:$port')) {
           return false;
         }
       }
@@ -147,25 +141,21 @@ class LinuxProxy {
     final schemaPrefix = selection.backend == LinuxProxyBackend.mate
         ? 'org.mate.system.proxy'
         : 'org.gnome.system.proxy';
-    if (!await _outputEquals(
-      'gsettings',
-      ['get', schemaPrefix, 'mode'],
-      'manual',
-    )) {
+    if (!await _outputEquals('gsettings', [
+      'get',
+      schemaPrefix,
+      'mode',
+    ], 'manual')) {
       return false;
     }
     for (final type in _ProxyType.values) {
       final schema = '$schemaPrefix.${type.name}';
-      if (!await _outputEquals(
-            'gsettings',
-            ['get', schema, 'host'],
-            proxyHost,
-          ) ||
-          !await _outputEquals(
-            'gsettings',
-            ['get', schema, 'port'],
-            '$port',
-          )) {
+      if (!await _outputEquals('gsettings', [
+            'get',
+            schema,
+            'host',
+          ], proxyHost) ||
+          !await _outputEquals('gsettings', ['get', schema, 'port'], '$port')) {
         return false;
       }
     }
@@ -271,21 +261,21 @@ class LinuxProxyCommands {
   }) {
     return switch (backend) {
       LinuxProxyBackend.gnome => _buildGSettingsStart(
-          port: port,
-          bypassDomain: bypassDomain,
-          schemaPrefix: 'org.gnome.system.proxy',
-        ),
+        port: port,
+        bypassDomain: bypassDomain,
+        schemaPrefix: 'org.gnome.system.proxy',
+      ),
       LinuxProxyBackend.mate => _buildGSettingsStart(
-          port: port,
-          bypassDomain: bypassDomain,
-          schemaPrefix: 'org.mate.system.proxy',
-        ),
+        port: port,
+        bypassDomain: bypassDomain,
+        schemaPrefix: 'org.mate.system.proxy',
+      ),
       LinuxProxyBackend.kde => _buildKdeStart(
-          port: port,
-          bypassDomain: bypassDomain,
-          homeDir: homeDir,
-          executable: kdeConfigWriter,
-        ),
+        port: port,
+        bypassDomain: bypassDomain,
+        homeDir: homeDir,
+        executable: kdeConfigWriter,
+      ),
     };
   }
 
@@ -296,15 +286,15 @@ class LinuxProxyCommands {
   }) {
     return switch (backend) {
       LinuxProxyBackend.gnome => _buildGSettingsStop(
-          schemaPrefix: 'org.gnome.system.proxy',
-        ),
+        schemaPrefix: 'org.gnome.system.proxy',
+      ),
       LinuxProxyBackend.mate => _buildGSettingsStop(
-          schemaPrefix: 'org.mate.system.proxy',
-        ),
+        schemaPrefix: 'org.mate.system.proxy',
+      ),
       LinuxProxyBackend.kde => _buildKdeStop(
-          homeDir: homeDir,
-          executable: kdeConfigWriter,
-        ),
+        homeDir: homeDir,
+        executable: kdeConfigWriter,
+      ),
     };
   }
 
@@ -337,10 +327,10 @@ class LinuxProxyCommands {
   ) {
     return switch (backend) {
       LinuxProxyBackend.gnome ||
-      LinuxProxyBackend.mate =>
-        availableExecutables.contains('gsettings'),
-      LinuxProxyBackend.kde => availableExecutables.contains('kwriteconfig6') ||
-          availableExecutables.contains('kwriteconfig5'),
+      LinuxProxyBackend.mate => availableExecutables.contains('gsettings'),
+      LinuxProxyBackend.kde =>
+        availableExecutables.contains('kwriteconfig6') ||
+            availableExecutables.contains('kwriteconfig5'),
     };
   }
 

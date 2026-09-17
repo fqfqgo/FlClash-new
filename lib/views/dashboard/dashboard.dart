@@ -215,11 +215,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
         actions: _buildActions(isEdit),
         floatingActionButton: const Row(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            LaunchBrowserButton(),
-            SizedBox(width: 8),
-            StartButton(),
-          ],
+          children: [LaunchBrowserButton(), SizedBox(width: 8), StartButton()],
         ),
         body: Align(
           alignment: Alignment.topCenter,

@@ -93,7 +93,6 @@ class GlobalState {
     return container;
   }
 
-
   Future<T?> loadingRun<T>(
     FutureOr<T> Function() futureFunction, {
     String? title,

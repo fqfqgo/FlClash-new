@@ -29,7 +29,10 @@ Uint8List? tryDecryptSubscription(String password, String base64Data) {
   Uint8List keyBytes;
   try {
     keyBytes = Uint8List.fromList(
-      List.generate(16, (i) => int.parse(passHash.substring(i * 2, i * 2 + 2), radix: 16)),
+      List.generate(
+        16,
+        (i) => int.parse(passHash.substring(i * 2, i * 2 + 2), radix: 16),
+      ),
     );
   } catch (_) {
     return null;
@@ -37,7 +40,10 @@ Uint8List? tryDecryptSubscription(String password, String base64Data) {
 
   Uint8List raw;
   try {
-    final normalized = base64Data.trim().replaceAll('\n', '').replaceAll('\r', '');
+    final normalized = base64Data
+        .trim()
+        .replaceAll('\n', '')
+        .replaceAll('\r', '');
     raw = base64Decode(normalized);
   } catch (_) {
     return null;
@@ -55,7 +61,10 @@ Uint8List? tryDecryptSubscription(String password, String base64Data) {
     final bytes = Uint8List.fromList(utf8.encode(decrypted));
     return bytes.isNotEmpty ? bytes : null;
   } catch (e) {
-    commonPrint.log('Subscription decrypt error: $e', logLevel: LogLevel.warning);
+    commonPrint.log(
+      'Subscription decrypt error: $e',
+      logLevel: LogLevel.warning,
+    );
     return null;
   }
 }

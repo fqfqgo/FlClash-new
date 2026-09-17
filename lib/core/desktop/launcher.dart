@@ -31,12 +31,9 @@ final class DirectCoreLauncher implements CoreProcessLauncher {
     Map<String, String>? environment,
   }) : _startProcess =
            startProcess ??
-           ((executable, arguments) => Process.start(
-             executable,
-             arguments,
-             environment: environment,
-           )),
-      corePath = corePath ?? appPath.corePath;
+           ((executable, arguments) =>
+               Process.start(executable, arguments, environment: environment)),
+       corePath = corePath ?? appPath.corePath;
 
   @override
   Future<CoreProcessLease> start({

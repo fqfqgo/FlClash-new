@@ -86,8 +86,8 @@ void main() {
             final key = arguments.isEmpty ? '' : arguments.last;
             final output = executable == 'kreadconfig5'
                 ? key == 'ProxyType'
-                    ? '1'
-                    : '${key.replaceFirst('Proxy', '')}://127.0.0.1:7890'
+                      ? '1'
+                      : '${key.replaceFirst('Proxy', '')}://127.0.0.1:7890'
                 : '';
             return ProcessResult(1, 0, output, '');
           }),
@@ -395,9 +395,9 @@ USB 10/100/1000 LAN
       MethodCall? capturedCall;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(proxy.methodChannel, (call) async {
-        capturedCall = call;
-        return true;
-      });
+            capturedCall = call;
+            return true;
+          });
 
       final result = await proxy.startProxy(7890, const ['localhost']);
 

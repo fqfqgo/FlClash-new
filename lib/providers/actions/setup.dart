@@ -508,8 +508,8 @@ class SetupAction extends _$SetupAction {
       () => profile == null
           ? null
           : ref
-              .read(profilesActionProvider.notifier)
-              .checkAndUpdateIfNeeded(profile),
+                .read(profilesActionProvider.notifier)
+                .checkAndUpdateIfNeeded(profile),
     );
     if (nextProfile != null) {
       profile = nextProfile;

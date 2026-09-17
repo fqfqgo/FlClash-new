@@ -94,7 +94,6 @@ class Database extends _$Database {
     if (exists) return;
     await m.addColumn(table, column);
   }
-  }
 
   Future<void> _migrateRules(Migrator m) async {
     final tableInfo = await customSelect('PRAGMA table_info(rules)').get();

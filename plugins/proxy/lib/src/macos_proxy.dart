@@ -6,7 +6,7 @@ class MacosProxy {
   final ProxyCommandRunner _commandRunner;
 
   MacosProxy({required ProxyCommandRunner commandRunner})
-      : _commandRunner = commandRunner;
+    : _commandRunner = commandRunner;
 
   Future<bool> start(int port, List<String> bypassDomain) async {
     final services = await _networkServices();
@@ -159,8 +159,9 @@ class MacosProxyCommands {
     for (final line in output.split('\n')) {
       final separator = line.indexOf(':');
       if (separator <= 0) continue;
-      values[line.substring(0, separator).trim().toLowerCase()] =
-          line.substring(separator + 1).trim();
+      values[line.substring(0, separator).trim().toLowerCase()] = line
+          .substring(separator + 1)
+          .trim();
     }
     return values['enabled']?.toLowerCase() == 'yes' &&
         values['server'] == proxyHost &&

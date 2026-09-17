@@ -43,8 +43,7 @@ String normalizeReleaseVersion(String version) {
   final normalized = version.startsWith('v') ? version.substring(1) : version;
   if (normalized.contains('+')) return normalized;
   final parts = normalized.split('.');
-  if (parts.length == 4 &&
-      parts.every((part) => int.tryParse(part) != null)) {
+  if (parts.length == 4 && parts.every((part) => int.tryParse(part) != null)) {
     return '${parts.take(3).join('.')}+${parts[3]}';
   }
   return '$normalized+0';

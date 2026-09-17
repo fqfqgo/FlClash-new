@@ -60,8 +60,6 @@ docs/
 /android/core/**/includes/
 /android/core/**/cmake-build-*/
 /android/core/**/jniLibs/
-/android/app/google-services.json
-
 #FlClash
 /libclash/
 /android/app/src/main/jniLibs/
