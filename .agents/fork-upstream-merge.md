@@ -50,6 +50,7 @@
 - `lib/common/constant.dart`：`repository`、`defaultTestUrl`
 - `android/app/build.gradle.kts`：`applicationId = "com.go.class"`
 - 加密订阅、`LaunchBrowserButton`、DB 幂等迁移、`appDisplayVersion` 等
+- `lib/database/database.dart`：`schemaVersion` 为 **4**（`login_password` + 幂等修表）；合并上游后须把 `test/database/migration_*` / `generated_contract_test` 的版本号与 profile 列数期望改回 4 / 含 `loginPassword`，不能沿用上游的 3 / 14
 
 ### v0.8.96 架构迁移位置
 

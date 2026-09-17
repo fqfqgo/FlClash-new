@@ -26,9 +26,12 @@ void _downgradeToV1(Database raw) {
   raw.execute('PRAGMA user_version = 1');
 }
 
-/// Schema version 2 had no `match_target` on `profiles`.
+/// Schema version 2 had no `match_target` / `login_password` on `profiles`.
 void _downgradeToV2(Database raw) {
   raw.execute('ALTER TABLE profiles DROP COLUMN match_target');
+  if (_columnsOf(raw, 'profiles').contains('login_password')) {
+    raw.execute('ALTER TABLE profiles DROP COLUMN login_password');
+  }
   raw.execute('PRAGMA user_version = 2');
 }
 
@@ -76,17 +79,20 @@ void main() {
 
     await openAndMigrate();
 
-    expect(_userVersion(raw), 3);
+    expect(_userVersion(raw), 4);
+    expect(_columnsOf(raw, 'profiles'), contains('login_password'));
   });
 
-  test('the v3 upgrade adds match_target to profiles', () async {
+  test('the upgrade adds match_target and login_password to profiles', () async {
     _downgradeToV2(raw);
     expect(_columnsOf(raw, 'profiles'), isNot(contains('match_target')));
+    expect(_columnsOf(raw, 'profiles'), isNot(contains('login_password')));
 
     await openAndMigrate();
 
     expect(_columnsOf(raw, 'profiles'), contains('match_target'));
-    expect(_userVersion(raw), 3);
+    expect(_columnsOf(raw, 'profiles'), contains('login_password'));
+    expect(_userVersion(raw), 4);
   });
 
   test(
@@ -98,7 +104,8 @@ void main() {
       await openAndMigrate();
 
       expect(_columnsOf(raw, 'profiles'), contains('match_target'));
-      expect(_userVersion(raw), 3);
+      expect(_columnsOf(raw, 'profiles'), contains('login_password'));
+      expect(_userVersion(raw), 4);
     },
   );
 
@@ -168,22 +175,22 @@ void main() {
     );
   });
 
-  test('an empty v1 rules table still reaches v2', () async {
+  test('an empty v1 rules table still reaches the current schema', () async {
     _downgradeToV1(raw);
 
     final database = await openAndMigrate();
 
-    expect(_userVersion(raw), 3);
+    expect(_userVersion(raw), 4);
     expect(await database.customSelect('SELECT * FROM rules').get(), isEmpty);
   });
 
-  test('opening a database already at v2 changes nothing', () async {
+  test('opening a database already at the current schema changes nothing', () async {
     final before = _columnsOf(raw, 'rules');
 
     await openAndMigrate();
 
     expect(_columnsOf(raw, 'rules'), before);
-    expect(_userVersion(raw), 3);
+    expect(_userVersion(raw), 4);
     expect(_hasTable(raw, 'proxy_groups'), isTrue);
   });
 }
