@@ -31,7 +31,7 @@
 |------|----------------|
 | `build.yaml` 的 `Set version from tag` | `vX.Y.Z` → `X.Y.Z+0`；`vX.Y.Z.N` → `X.Y.Z+N` |
 | `lib/common/request.dart` | 检查更新必须使用本地 `packageInfo.version` **和** `buildNumber` |
-| `lib/common/utils.dart` | release tag 的四段形式必须规范化为 Flutter build 版本后再比较 |
+| `lib/common/package.dart` | `normalizeReleaseVersion` / `packageVersion`（上游已删除 `utils.dart`，fork 函数放在此处） |
 | `test/common/utils_test.dart` | 覆盖 base tag 与四段 tag 的更新比较 |
 | `lib/state.dart` | 关于页/窗口展示版本应保留 build 后缀 |
 | `setup.dart` 与 `distribute_options.yaml` | 发布产物名应保留完整 tag 后缀 |

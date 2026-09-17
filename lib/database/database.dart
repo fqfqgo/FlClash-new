@@ -8,6 +8,7 @@ import 'package:drift/native.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 
 part 'converter.dart';
 part 'generated/database.g.dart';
@@ -59,6 +60,9 @@ class Database extends _$Database {
           await _migrateLoginPassword(m);
           await _resetOrders();
         }
+        if (from < 3) {
+          await _addColumnIfMissing(m, profiles, profiles.matchTarget);
+        }
       },
     );
   }
@@ -72,13 +76,24 @@ class Database extends _$Database {
   }
 
   Future<void> _migrateLoginPassword(Migrator m) async {
-    final tableInfo = await customSelect('PRAGMA table_info(profiles)').get();
-    final hasLoginPassword = tableInfo.any(
-      (row) => row.read<String>('name') == 'login_password',
+    await _addColumnIfMissing(m, profiles, profiles.loginPassword);
+  }
+
+  /// Drift rewinds user_version on downgrade but keeps the columns it added.
+  Future<void> _addColumnIfMissing(
+    Migrator m,
+    TableInfo table,
+    GeneratedColumn column,
+  ) async {
+    final tableInfo = await customSelect(
+      'PRAGMA table_info(${table.actualTableName})',
+    ).get();
+    final exists = tableInfo.any(
+      (row) => row.read<String>('name') == column.name,
     );
-    if (!hasLoginPassword) {
-      await m.addColumn(profiles, profiles.loginPassword);
-    }
+    if (exists) return;
+    await m.addColumn(table, column);
+  }
   }
 
   Future<void> _migrateRules(Migrator m) async {
@@ -140,22 +155,29 @@ class Database extends _$Database {
     List<ProxyGroup> proxyGroups, {
     bool isOverride = false,
   }) async {
-    if (profiles.isNotEmpty ||
-        scripts.isNotEmpty ||
-        rules.isNotEmpty ||
-        links.isNotEmpty) {
-      await batch((b) {
-        isOverride
-            ? profilesDao.setAllWithBatch(b, profiles)
-            : profilesDao.putAllWithBatch(
-                b,
-                profiles.map((item) => item.toCompanion()),
-              );
+    if (profiles.isEmpty &&
+        scripts.isEmpty &&
+        rules.isEmpty &&
+        links.isEmpty &&
+        proxyGroups.isEmpty) {
+      return;
+    }
+    await batch((b) {
+      if (isOverride) {
+        profilesDao.setAllWithBatch(b, profiles);
         scriptsDao.setAllWithBatch(b, scripts);
         rulesDao.restoreWithBatch(b, rules, links);
         proxyGroupsDao.setAllWithBatch(null, b, proxyGroups);
-      });
-    }
+        return;
+      }
+      profilesDao.putAllWithBatch(
+        b,
+        profiles.map((item) => item.toCompanion()),
+      );
+      scriptsDao.putAllWithBatch(b, scripts);
+      rulesDao.mergeWithBatch(b, rules, links);
+      proxyGroupsDao.putAllWithBatch(b, proxyGroups);
+    });
   }
 
   Future<void> setProfileCustomData(
@@ -219,4 +241,9 @@ extension JoinedSelectStatementExt<T extends HasResultSet, D>
   }
 }
 
-final database = Database();
+Database _database = Database();
+
+Database get database => _database;
+
+@visibleForTesting
+set database(Database value) => _database = value;

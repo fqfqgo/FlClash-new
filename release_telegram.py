@@ -1,5 +1,8 @@
-import os
+import html
 import json
+import os
+import sys
+
 import requests
 from requests.exceptions import RequestException
 
@@ -14,7 +17,10 @@ LOCAL_API_URL = f"http://localhost:8081/bot{TELEGRAM_BOT_TOKEN}/sendMediaGroup"
 PUBLIC_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMediaGroup"
 
 DIST_DIR = os.path.join(os.getcwd(), "dist")
-release = os.path.join(os.getcwd(), "release.md")
+# Rendered by `tool/changelog.dart render telegram`: plain bullets, already
+# truncated to fit the caption limit. release.md carries the download table and
+# would blow past that limit.
+release = os.path.join(os.getcwd(), "telegram.md")
 
 text = ""
 
@@ -44,7 +50,7 @@ for file in os.listdir(DIST_DIR):
             i += 1
 
 if TAG:
-    text += f"\n**{TAG}**\n"
+    text += f"\n<b>{html.escape(TAG)}</b>\n"
 
 if IS_STABLE:
     text += f"\nhttps://github.com/chen08209/FlClash/releases/tag/{TAG}\n"
@@ -59,7 +65,11 @@ if os.path.exists(release):
 
 if media:
     media[-1]["caption"] = text
-    media[-1]["parse_mode"] = "Markdown"
+    # HTML, not Markdown: the caption carries changelog entries written by
+    # whoever wrote the commit, and HTML is the one Telegram parse mode with a
+    # defined escape for them. `tool/changelog.dart render telegram` emits the
+    # matching markup.
+    media[-1]["parse_mode"] = "HTML"
 
 if not TELEGRAM_BOT_TOKEN:
     print("TELEGRAM_BOT_TOKEN is missing, skip telegram push.")
