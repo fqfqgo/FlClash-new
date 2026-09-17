@@ -13,6 +13,7 @@
 
 **Bug Fixes**
 
+- Fold v0.8.97 changelog into v0.8.98 for fork tags (edcca09)
 - Align fork dialogs and state with upstream APIs (cb4f86f)
 - Restore CI build after v0.8.98 merge (bbd4c46)
 - **resources** Refresh the geo file size and time after an update finishes (c5bf5bd)

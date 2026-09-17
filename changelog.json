@@ -46,6 +46,10 @@
           "type": "fix",
           "entries": [
             {
+              "id": "edcca09",
+              "text": "Fold v0.8.97 changelog into v0.8.98 for fork tags"
+            },
+            {
               "id": "cb4f86f",
               "text": "Align fork dialogs and state with upstream APIs"
             },
