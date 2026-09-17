@@ -40,5 +40,14 @@ void main() {
 
       expect(compareVersions(available, installed), greaterThan(0));
     });
+
+    test('formats the about-page display version', () {
+      expect(displayPackageVersion('0.8.98', '1'), '0.8.98.1');
+      expect(displayPackageVersion('0.8.98', '0'), '0.8.98');
+      expect(displayPackageVersion('0.8.98', 'x'), '0.8.98');
+      expect(displayPackageVersion('0.8.98+2', '9'), '0.8.98.2');
+      expect(displayVersion('v0.8.98+0'), '0.8.98');
+      expect(displayVersion('0.8.98+3'), '0.8.98.3');
+    });
   });
 }

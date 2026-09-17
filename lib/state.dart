@@ -51,8 +51,8 @@ class GlobalState {
   void updateAppDisplayVersion() {
     const definedVersion = String.fromEnvironment('APP_VERSION');
     appDisplayVersion = definedVersion.isNotEmpty
-        ? _displayVersion(definedVersion)
-        : _displayPackageVersion(packageInfo.version, packageInfo.buildNumber);
+        ? displayVersion(definedVersion)
+        : displayPackageVersion(packageInfo.version, packageInfo.buildNumber);
   }
 
   Future<T?> loadingRun<T>(
@@ -111,21 +111,6 @@ class GlobalState {
       onEnd?.call();
     }
   }
-}
-
-String _displayPackageVersion(String version, String buildNumber) {
-  final build = int.tryParse(buildNumber);
-  if (build == null || build <= 0 || version.contains('+')) {
-    return _displayVersion(version);
-  }
-  return '$version.$build';
-}
-
-String _displayVersion(String version) {
-  final normalized = version.startsWith('v') ? version.substring(1) : version;
-  final parts = normalized.split('+');
-  if (parts.length < 2 || parts[1] == '0') return parts.first;
-  return '${parts.first}.${parts[1]}';
 }
 
 final globalState = GlobalState();

@@ -54,6 +54,21 @@ String packageVersion(String version, String buildNumber) {
   return '$version+${int.tryParse(buildNumber) ?? 0}';
 }
 
+String displayPackageVersion(String version, String buildNumber) {
+  final build = int.tryParse(buildNumber);
+  if (build == null || build <= 0 || version.contains('+')) {
+    return displayVersion(version);
+  }
+  return '$version.$build';
+}
+
+String displayVersion(String version) {
+  final normalized = version.startsWith('v') ? version.substring(1) : version;
+  final parts = normalized.split('+');
+  if (parts.length < 2 || parts[1] == '0') return parts.first;
+  return '${parts.first}.${parts[1]}';
+}
+
 const releaseNotesBeginMarker = '<!-- flclash:changelog:begin -->';
 const releaseNotesEndMarker = '<!-- flclash:changelog:end -->';
 

@@ -31,7 +31,6 @@ void main() {
   tearDown(() {
     container.dispose();
     globalState.isAttach = false;
-    globalState.packageInfo = _packageInfo;
     globalState.appDisplayVersion = '0.0.0';
   });
 
@@ -63,47 +62,10 @@ void main() {
   });
 
   group('appDisplayVersion', () {
-    PackageInfo info({required String version, required String buildNumber}) {
-      return PackageInfo(
-        appName: 'FlClash',
-        packageName: 'com.follow.clash',
-        version: version,
-        buildNumber: buildNumber,
-      );
-    }
-
-    test('appends a positive build number as a fourth segment', () {
-      globalState.packageInfo = info(version: '0.8.98', buildNumber: '1');
-
+    test('copies the package version into the about-page display string', () {
       globalState.updateAppDisplayVersion();
 
-      expect(globalState.appDisplayVersion, '0.8.98.1');
-    });
-
-    test('omits a zero or invalid build number', () {
-      globalState.packageInfo = info(version: '0.8.98', buildNumber: '0');
-      globalState.updateAppDisplayVersion();
-      expect(globalState.appDisplayVersion, '0.8.98');
-
-      globalState.packageInfo = info(version: '0.8.98', buildNumber: 'x');
-      globalState.updateAppDisplayVersion();
-      expect(globalState.appDisplayVersion, '0.8.98');
-    });
-
-    test('prefers a +build already present in the package version', () {
-      globalState.packageInfo = info(version: '0.8.98+2', buildNumber: '9');
-
-      globalState.updateAppDisplayVersion();
-
-      expect(globalState.appDisplayVersion, '0.8.98.2');
-    });
-
-    test('strips a leading v and a +0 build suffix', () {
-      globalState.packageInfo = info(version: 'v0.8.98+0', buildNumber: '0');
-
-      globalState.updateAppDisplayVersion();
-
-      expect(globalState.appDisplayVersion, '0.8.98');
+      expect(globalState.appDisplayVersion, '1.2.3.1');
     });
   });
 
