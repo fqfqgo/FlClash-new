@@ -187,7 +187,7 @@ extension ProfileExtension on Profile {
     final response = await request.getFileResponseForUrl(url);
     final disposition = response.headers.value('content-disposition');
     final userinfo = response.headers.value('subscription-userinfo');
-    final encHeader = response.headers.value('subscription-encryption');
+    final encHeader = response.headers.value(subscriptionEncryptionHeader);
     var data = response.data ?? Uint8List.fromList([]);
 
     if (isSubscriptionEncrypted(encHeader)) {

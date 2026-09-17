@@ -252,6 +252,9 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
               labelText: appLocalizations.subscriptionLoginPassword,
               hintText: appLocalizations.subscriptionLoginPasswordHint,
               suffixIcon: IconButton(
+                tooltip: _isLoginPasswordObscured
+                    ? appLocalizations.showPassword
+                    : appLocalizations.hidePassword,
                 onPressed: () {
                   setState(() {
                     _isLoginPasswordObscured = !_isLoginPasswordObscured;
