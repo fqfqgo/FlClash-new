@@ -2,13 +2,6 @@
 
 ## v0.8.98 (2026-09-14)
 
-**Bug Fixes**
-
-- **resources** Refresh the geo file size and time after an update finishes (c5bf5bd)
-- **core** Keep the core running while Windows sleeps with the app suspended (60f371a)
-
-## v0.8.97 (2026-09-10)
-
 **Features**
 
 - **ui** Rework the app UI and refresh the localization (26cfbaf)
@@ -17,6 +10,13 @@
 - **android** Rework the Android VPN service and lifecycle handling (ae29f38)
 - **plugins** Rework the desktop plugins and add the Helper service and Rust bridge (adf715f)
 - **core** Rework the core IPC and process lifecycle (c6eaa0a)
+
+**Bug Fixes**
+
+- Align fork dialogs and state with upstream APIs (cb4f86f)
+- Restore CI build after v0.8.98 merge (bbd4c46)
+- **resources** Refresh the geo file size and time after an update finishes (c5bf5bd)
+- **core** Keep the core running while Windows sleeps with the app suspended (60f371a)
 
 <!-- changelog:frozen -->
 <!-- Entries below predate the structured pipeline. Their wording is kept as written; only the heading and list style were normalized. -->
