@@ -83,17 +83,20 @@ void main() {
     expect(_columnsOf(raw, 'profiles'), contains('login_password'));
   });
 
-  test('the upgrade adds match_target and login_password to profiles', () async {
-    _downgradeToV2(raw);
-    expect(_columnsOf(raw, 'profiles'), isNot(contains('match_target')));
-    expect(_columnsOf(raw, 'profiles'), isNot(contains('login_password')));
+  test(
+    'the upgrade adds match_target and login_password to profiles',
+    () async {
+      _downgradeToV2(raw);
+      expect(_columnsOf(raw, 'profiles'), isNot(contains('match_target')));
+      expect(_columnsOf(raw, 'profiles'), isNot(contains('login_password')));
 
-    await openAndMigrate();
+      await openAndMigrate();
 
-    expect(_columnsOf(raw, 'profiles'), contains('match_target'));
-    expect(_columnsOf(raw, 'profiles'), contains('login_password'));
-    expect(_userVersion(raw), 4);
-  });
+      expect(_columnsOf(raw, 'profiles'), contains('match_target'));
+      expect(_columnsOf(raw, 'profiles'), contains('login_password'));
+      expect(_userVersion(raw), 4);
+    },
+  );
 
   test(
     'a v2 user_version with match_target already present still opens',
@@ -184,13 +187,16 @@ void main() {
     expect(await database.customSelect('SELECT * FROM rules').get(), isEmpty);
   });
 
-  test('opening a database already at the current schema changes nothing', () async {
-    final before = _columnsOf(raw, 'rules');
+  test(
+    'opening a database already at the current schema changes nothing',
+    () async {
+      final before = _columnsOf(raw, 'rules');
 
-    await openAndMigrate();
+      await openAndMigrate();
 
-    expect(_columnsOf(raw, 'rules'), before);
-    expect(_userVersion(raw), 4);
-    expect(_hasTable(raw, 'proxy_groups'), isTrue);
-  });
+      expect(_columnsOf(raw, 'rules'), before);
+      expect(_userVersion(raw), 4);
+      expect(_hasTable(raw, 'proxy_groups'), isTrue);
+    },
+  );
 }
