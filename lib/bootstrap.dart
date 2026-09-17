@@ -90,6 +90,7 @@ class Bootstrap {
     DynamicColorSeeds dynamicColor,
   ) async {
     globalState.packageInfo = await PackageInfo.fromPlatform();
+    globalState.updateAppDisplayVersion();
     var config = await migration.run();
     _bootDecision = await bootGuard.evaluate(
       profileId: config.currentProfileId,
@@ -124,6 +125,9 @@ class Bootstrap {
         );
     final profiles = await database.profilesDao.query().get();
     container.read(profilesProvider.notifier).setAndReorder(profiles);
+    container
+        .read(profilesActionProvider.notifier)
+        .ensureCurrentProfileSelected();
     await AppLocalizations.load(
       getLocaleForString(config.appSettingProps.locale) ??
           WidgetsBinding.instance.platformDispatcher.locale,

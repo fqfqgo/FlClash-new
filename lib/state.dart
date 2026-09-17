@@ -14,7 +14,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 class GlobalState {
   static GlobalState? _instance;
-  final navigatorKey = GlobalKey<NavigatorState>();
+  GlobalKey<NavigatorState> get navigatorKey => rootNavigatorKey;
   String appDisplayVersion = '0.0.0';
   late final String appEnv;
   late final PackageInfo packageInfo;
@@ -48,49 +48,11 @@ class GlobalState {
       .read(patchClashConfigProvider.select((state) => state.globalUa))
       .takeFirstValid([packageInfo.ua]);
 
-  BuildContext get _context => navigatorKey.currentContext!;
-
-  Future<ProviderContainer> _initData(int version) async {
-    packageInfo = await PackageInfo.fromPlatform();
-    var config = await migration.run();
-    _didCrashOnPreviousExecution = await system.didCrashOnPreviousExecution();
-    if (_didCrashOnPreviousExecution) {
-      config = config.copyWith(currentProfileId: null);
-      await preferences.saveConfig(config);
-    }
-    final appState = AppState(
-      brightness: WidgetsBinding.instance.platformDispatcher.platformBrightness,
-      version: version,
-      viewSize: Size.zero,
-      requests: FixedList(maxLength),
-      logs: FixedList(maxLength),
-      traffics: FixedList(30),
-      totalTraffic: const Traffic(),
-      systemUiOverlayStyle: const SystemUiOverlayStyle(),
-    );
-    final appStateOverrides = buildAppStateOverrides(appState);
+  void updateAppDisplayVersion() {
     const definedVersion = String.fromEnvironment('APP_VERSION');
     appDisplayVersion = definedVersion.isNotEmpty
         ? _displayVersion(definedVersion)
         : _displayPackageVersion(packageInfo.version, packageInfo.buildNumber);
-    final configOverrides = buildConfigOverrides(config);
-    container = ProviderContainer(
-      overrides: [...appStateOverrides, ...configOverrides],
-    );
-    final profiles = await database.profilesDao.query().get();
-    container.read(profilesProvider.notifier).setAndReorder(profiles);
-    container
-        .read(profilesActionProvider.notifier)
-        .ensureCurrentProfileSelected();
-    await AppLocalizations.load(
-      getLocaleForString(config.appSettingProps.locale) ??
-          WidgetsBinding.instance.platformDispatcher.locale,
-    );
-    await window?.init(version, config.windowProps);
-    if (system.isAndroid) {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    }
-    return container;
   }
 
   Future<T?> loadingRun<T>(

@@ -284,7 +284,7 @@ class SetupAction extends _$SetupAction {
       ref
           .read(patchClashConfigProvider.notifier)
           .update((state) => state.copyWith.tun(enable: false));
-      globalState.showNotifier(
+      dialogs.showNotifier(
         currentAppLocalizations.systemProxyFallbackToTunFailed,
       );
       return;
@@ -296,7 +296,7 @@ class SetupAction extends _$SetupAction {
     } else {
       await _restartCoreAfterAuthorization();
     }
-    globalState.showNotifier(currentAppLocalizations.systemProxyFallbackToTun);
+    dialogs.showNotifier(currentAppLocalizations.systemProxyFallbackToTun);
   }
 
   void changeMode(Mode mode) {

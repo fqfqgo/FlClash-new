@@ -34,7 +34,7 @@
 | `lib/common/request.dart` | 检查更新必须使用本地 `packageInfo.version` **和** `buildNumber` |
 | `lib/common/package.dart` | `normalizeReleaseVersion` / `packageVersion`（上游已删除 `utils.dart`，fork 函数放在此处） |
 | `test/common/utils_test.dart` | 覆盖 base tag 与四段 tag 的更新比较 |
-| `lib/state.dart` | 关于页/窗口展示版本应保留 build 后缀 |
+| `lib/state.dart` / `lib/bootstrap.dart` | 关于页展示版本保留 build 后缀；`updateAppDisplayVersion()` 在 bootstrap 初始化 |
 | `setup.dart` 与 `distribute_options.yaml` | 发布产物名应保留完整 tag 后缀 |
 
 **2026-07-18 实例**：合并 v0.8.94 后，仅保留了产物名和展示版本；`checkForUpdate()` 忽略 `v0.8.94.1` 的第四段及本地 build number，导致 v0.8.94 客户端误报“当前应用已经是最新版”。此前 v0.8.93.x 已处理过同类问题（例如 `79a8702`、`0248332`、`006c20e`、`29bcbbc`、`11e48ec`），同步上游时遗漏了运行时比较部分。

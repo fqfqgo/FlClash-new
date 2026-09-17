@@ -74,7 +74,7 @@ class ProfilesAction extends _$ProfilesAction {
   }
 
   Future<String?> _promptSubscriptionPassword({bool passwordWrong = false}) {
-    return globalState.showCommonDialog<String>(
+    return dialogs.showCommonDialog<String>(
       child: InputDialog(
         title: passwordWrong
             ? currentAppLocalizations.subscriptionPasswordWrongTip
@@ -99,7 +99,9 @@ class ProfilesAction extends _$ProfilesAction {
     var current = profile;
     while (true) {
       try {
-        return await current.update();
+        return await current.update(
+          validate: (path) => _core.validateConfig(path),
+        );
       } on SubscriptionEncryptedException catch (error) {
         final password = await _promptSubscriptionPassword(
           passwordWrong: error.passwordWrong,

@@ -442,7 +442,7 @@ class LaunchBrowserButton extends ConsumerWidget {
               final userDataDir = await _ensureBrowserUserDataDir();
               await _launchWithProxy(port, userDataDir);
             } catch (e) {
-              globalState.showNotifier(
+              dialogs.showNotifier(
                 '${appLocalizations.launchBrowserFailed}: $e',
               );
             }

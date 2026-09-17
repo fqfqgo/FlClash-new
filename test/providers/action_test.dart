@@ -84,7 +84,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           currentProfileIdProvider.overrideWithBuild((_, _) => -1),
-          profilesProvider.overrideWith(() => _TestProfiles([first, second])),
+          profilesProvider.overrideWith(() => TestProfiles([first, second])),
         ],
       );
       addTearDown(container.dispose);
