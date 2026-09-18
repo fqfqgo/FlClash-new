@@ -46,6 +46,10 @@
           "type": "fix",
           "entries": [
             {
+              "id": "5e18471",
+              "text": "Restore the Windows window title and repair missing login_password on open"
+            },
+            {
               "id": "edcca09",
               "text": "Fold v0.8.97 changelog into v0.8.98 for fork tags"
             },
