@@ -470,8 +470,9 @@ jobs:
           if-no-files-found: error
           overwrite: true
 
+  # Upstream retired this job; keeping it destroys structured CHANGELOG.md.
   changelog:
-    if: ${{ !contains(github.ref, '-') }}
+    if: false
     permissions:
       contents: write
     runs-on: ubuntu-latest

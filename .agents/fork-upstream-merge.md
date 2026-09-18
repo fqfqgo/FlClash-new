@@ -21,6 +21,7 @@
 - Android 签名：`SERVICE_JSON` 支持 base64 或原始 JSON，并校验 JSON；仓库内保留 dummy `android/app/google-services.json`（`com.go.class` / `com.go.class.dev`）供 Android 单测，release 构建仍由 secret 覆盖
 - `Set version from tag`、APK 兜底收集、`if-no-files-found: error` 等 fork 构建加固
 - **不要**恢复推送到 `chen08209` 的 Telegram / Homebrew / F-Droid
+- **不要**恢复旧的 `changelog` job（用 `git log` 覆盖 `CHANGELOG.md`）；结构化 changelog 只走 `tool/changelog.dart`
 - `core/Clash.Meta` 子模块必须与上游 tag 指向的 commit 一致，否则 Go core 会因 mihomo/jls-quic-go 版本漂移而编译失败
 - Windows 安装包：Inno Setup 6.7.1 在 Actions 上对路径基准不一致——`SetupIconFile` 相对仓库根（CWD），`MessagesFile` 相对 `.iss` 所在目录（`dist/`）。`setup.dart` 把资源拷进 `dist/` 后，`make_config.yaml` 应为 `setup_icon_file: dist/app_icon.ico`、中文 `file: ChineseSimplified.isl`（正斜杠；不要写成 `dist/dist/...`）
 

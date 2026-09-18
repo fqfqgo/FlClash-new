@@ -46,7 +46,7 @@
           "type": "fix",
           "entries": [
             {
-              "id": "5e18471",
+              "id": "2eb0ec5",
               "text": "Restore the Windows window title and repair missing login_password on open"
             },
             {
