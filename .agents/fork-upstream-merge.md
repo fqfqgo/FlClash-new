@@ -50,7 +50,8 @@
 - `lib/common/constant.dart`：`repository`、`defaultTestUrl`
 - `android/app/build.gradle.kts`：`applicationId = "com.go.class"`
 - 加密订阅、`LaunchBrowserButton`、DB 幂等迁移、`appDisplayVersion` 等
-- `lib/database/database.dart`：`schemaVersion` 为 **4**（`login_password` + 幂等修表）；合并上游后须把 `test/database/migration_*` / `generated_contract_test` 的版本号与 profile 列数期望改回 4 / 含 `loginPassword`，不能沿用上游的 3 / 14
+- `lib/database/database.dart`：`schemaVersion` 为 **4**（`login_password` + 幂等修表）；合并上游后须把 `test/database/migration_*` / `generated_contract_test` 的版本号与 profile 列数期望改回 4 / 含 `loginPassword`，不能沿用上游的 3 / 14；`beforeOpen` 必须幂等补列，不能只靠 `from < 4`
+- `lib/manager/window_manager.dart`：标题栏全平台显示 `FlClash for v2free-v{appDisplayVersion}`（勿只在 macOS 显示 `appName`）
 
 ### v0.8.96 架构迁移位置
 

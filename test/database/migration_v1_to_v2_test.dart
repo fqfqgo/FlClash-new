@@ -112,6 +112,20 @@ void main() {
     },
   );
 
+  test(
+    'a current schemaVersion missing login_password still repairs on open',
+    () async {
+      raw.execute('ALTER TABLE profiles DROP COLUMN login_password');
+      raw.execute('PRAGMA user_version = 4');
+      expect(_columnsOf(raw, 'profiles'), isNot(contains('login_password')));
+
+      await openAndMigrate();
+
+      expect(_columnsOf(raw, 'profiles'), contains('login_password'));
+      expect(_userVersion(raw), 4);
+    },
+  );
+
   test('the upgrade creates the tables v2 added', () async {
     _downgradeToV1(raw);
     expect(_hasTable(raw, 'proxy_groups'), isFalse);

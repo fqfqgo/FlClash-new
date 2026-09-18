@@ -6,6 +6,7 @@ import 'package:fl_clash/common/launch.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/config.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/state.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -386,11 +387,13 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final version = globalState.appDisplayVersion;
+    final versionLabel = version.startsWith('v') ? version : 'v$version';
     return WindowHeaderBar(
       height: kHeaderHeight,
       onDragStart: windowManager.startDragging,
       onDoubleTap: caption.toggleMaximized,
-      title: system.isMacOS ? const Text(appName) : null,
+      title: Text('FlClash for v2free-$versionLabel'),
       actions: system.isMacOS
           ? null
           : WindowHeaderActions(

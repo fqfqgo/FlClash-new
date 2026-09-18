@@ -49,22 +49,27 @@ class Database extends _$Database {
       // fork 与上游曾对 schemaVersion 赋予不同语义，无法用版本号区分，
       // 统一按表/列是否存在做幂等修复，兼容所有历史库。
       onUpgrade: (m, from, to) async {
+        await _repairSchema(m);
         if (from < 4) {
-          if (!await _hasTable('proxy_groups')) {
-            await m.createTable(proxyGroups);
-          }
-          if (!await _hasTable('icon_records')) {
-            await m.createTable(iconRecords);
-          }
-          await _migrateRules(m);
-          await _migrateLoginPassword(m);
           await _resetOrders();
         }
-        if (from < 3) {
-          await _addColumnIfMissing(m, profiles, profiles.matchTarget);
-        }
+      },
+      beforeOpen: (details) async {
+        await _repairSchema(Migrator(this));
       },
     );
+  }
+
+  Future<void> _repairSchema(Migrator m) async {
+    if (!await _hasTable('proxy_groups')) {
+      await m.createTable(proxyGroups);
+    }
+    if (!await _hasTable('icon_records')) {
+      await m.createTable(iconRecords);
+    }
+    await _migrateRules(m);
+    await _migrateLoginPassword(m);
+    await _addColumnIfMissing(m, profiles, profiles.matchTarget);
   }
 
   Future<bool> _hasTable(String name) async {

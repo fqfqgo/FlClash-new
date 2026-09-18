@@ -744,6 +744,9 @@ void main() {
 
       final shows = _hostShowsHeader(version: 15, isMobileView: true);
       expect(find.byType(WindowHeader), shows ? findsOneWidget : findsNothing);
+      if (shows) {
+        expect(find.textContaining('FlClash for v2free-'), findsOneWidget);
+      }
       expect(
         tester.getTopLeft(find.byKey(_contentKey)).dy,
         shows ? kHeaderHeight : 0,
